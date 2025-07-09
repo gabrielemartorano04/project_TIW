@@ -59,7 +59,7 @@ public class RegisterServlet extends HttpServlet {
             insertStmt.setString(4, cognome);
             insertStmt.executeUpdate();
 
-            response.sendRedirect("LoginPage");
+            response.sendRedirect("LoginServlet");
 
         } catch (Exception e) {
             e.printStackTrace();
