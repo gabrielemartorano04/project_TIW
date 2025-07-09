@@ -38,25 +38,29 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // Connessione al DB (modifica parametri con i tuoi valori)
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC", "user", "pwd")) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC",
+                    "root",
+                    "Pallanuoto04*");
 
-            // Controlla se l’username è già presente
-            PreparedStatement checkStmt = con.prepareStatement("SELECT * FROM utenti WHERE username = ?");
+            PreparedStatement checkStmt = con.prepareStatement("SELECT * FROM User WHERE username = ?");
             checkStmt.setString(1, username);
             ResultSet rs = checkStmt.executeQuery();
             if (rs.next()) {
                 response.sendRedirect("register.html?error=taken");
+                con.close();
                 return;
             }
 
             // Inserisci nuovo utente
             PreparedStatement insertStmt = con.prepareStatement(
-                    "INSERT INTO User (username, password, nome, cognome) VALUES (?, ?, ?, ?)");
+                    "INSERT INTO playlistdb.User (username, password, nome, cognome) VALUES (?, ?, ?, ?)");
             insertStmt.setString(1, username);
             insertStmt.setString(2, password); // In un progetto reale andrebbe criptata!
             insertStmt.setString(3, nome);
-            insertStmt.setString(4, nome);
+            insertStmt.setString(4, cognome);
             insertStmt.executeUpdate();
 
             response.sendRedirect("LoginServlet");
