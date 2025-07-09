@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrazione</title>
+</head>
+<body>
+  <h2>Registrati</h2>
+
+  <!-- Mostra errore se presente -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("error")) {
+      const code = params.get("error");
+      let msg = "";
+      if (code === "empty") msg = "Tutti i campi sono obbligatori.";
+      else if (code === "mismatch") msg = "Le password non coincidono.";
+      else if (code === "taken") msg = "Username già esistente.";
+      else msg = "Errore generico.";
+      document.write("<p style='color:red;'>" + msg + "</p>");
+    }
+  </script>
+
+  <form action="RegisterServlet" method="post">
+    Nome: <input type="text" name="nome" required><br>
+    Cognome: <input type="text" name="cognome" required><br>
+    Username: <input type="text" name="username" required><br>
+    Password: <input type="password" name="password" required><br>
+    Conferma Password: <input type="password" name="confirm" required><br>
+    <input type="submit" value="Registrati">
+  </form>
+
+  <p><a href="LoginPage">Torna al login</a></p>
+</body>
+</html>

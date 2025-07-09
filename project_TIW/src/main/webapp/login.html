@@ -1,0 +1,19 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="it">
+<head><meta charset="UTF-8"><title>Login</title></head>
+<body>
+  <h2>Login</h2>
+  <form action="LoginServlet" method="post">
+    Username: <input type="text" name="username" required><br>
+    Password: <input type="password" name="password" required><br>
+    <input type="submit" value="Login">
+  </form>
+  <p>Non hai un account? <a href="register.html">Registrati qui</a></p>
+  <!-- In caso di errore -->
+  <p style="color:red;">
+    <!-- messaggio mostrato dalla servlet -->
+    <!-- Usa una variabile di query string tipo ?error=1 e la servlet può riscrivere l’HTML -->
+  </p>
+</body>
+</html>
