@@ -39,7 +39,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         // Connessione al DB (modifica parametri con i tuoi valori)
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/tuoDB", "user", "pwd")) {
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC", "user", "pwd")) {
 
             // Controlla se l’username è già presente
             PreparedStatement checkStmt = con.prepareStatement("SELECT * FROM utenti WHERE username = ?");
@@ -52,11 +52,11 @@ public class RegisterServlet extends HttpServlet {
 
             // Inserisci nuovo utente
             PreparedStatement insertStmt = con.prepareStatement(
-                    "INSERT INTO utenti (username, password, nome, cognome) VALUES (?, ?, ?, ?)");
+                    "INSERT INTO User (username, password, nome, cognome) VALUES (?, ?, ?, ?)");
             insertStmt.setString(1, username);
             insertStmt.setString(2, password); // In un progetto reale andrebbe criptata!
             insertStmt.setString(3, nome);
-            insertStmt.setString(4, cognome);
+            insertStmt.setString(4, nome);
             insertStmt.executeUpdate();
 
             response.sendRedirect("LoginServlet");
