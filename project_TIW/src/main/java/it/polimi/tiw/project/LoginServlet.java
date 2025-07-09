@@ -6,6 +6,10 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,25 +18,55 @@ public class LoginServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-	@Override
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Prendi i dati dal form HTML
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        // Validazione base (qui puoi usare DAO con database)
+        // Controllo base
         if (username == null || password == null || username.isBlank() || password.isBlank()) {
             response.sendRedirect("login.html?error=1");
             return;
         }
 
-        // ESEMPIO: login fittizio (da sostituire con accesso DB)
+        boolean loginSuccess = false;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC",
+                    "root",  // ← cambia con il tuo utente
+                    "Pallanuoto04*" // ← cambia con la tua password
+            );
+
+            PreparedStatement stmt = con.prepareStatement("SELECT * FROM User WHERE username = ? AND password = ?");
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                loginSuccess = true;
+            }
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace(); // log interno
+            response.sendRedirect("login.html?error=db");
+            return;
+        }
+
+        // ✅ Login hardcoded fittizio (ancora valido)
         if (username.equals("admin") && password.equals("1234")) {
+            loginSuccess = true;
+        }
+
+        if (loginSuccess) {
             HttpSession session = request.getSession();
             session.setAttribute("username", username);
-            response.sendRedirect("HomeServlet"); // questa servlet la creerai tu dopo
+            response.sendRedirect("HomeServlet");
         } else {
             response.sendRedirect("login.html?error=1");
         }

@@ -20,15 +20,15 @@ public class RegisterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String nome = request.getParameter("nome");
-        String cognome = request.getParameter("cognome");
+        String name = request.getParameter("nome");
+        String surname = request.getParameter("cognome");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String confirm = request.getParameter("confirm");
 
         // Controlli base
-        if (nome == null || cognome == null || username == null || password == null || confirm == null ||
-            nome.isBlank() || cognome.isBlank() || username.isBlank() || password.isBlank() || confirm.isBlank()) {
+        if (name == null || surname == null || username == null || password == null || confirm == null ||
+            name.isBlank() || surname.isBlank() || username.isBlank() || password.isBlank() || confirm.isBlank()) {
             response.sendRedirect("register.html?error=empty");
             return;
         }
@@ -56,14 +56,14 @@ public class RegisterServlet extends HttpServlet {
 
             // Inserisci nuovo utente
             PreparedStatement insertStmt = con.prepareStatement(
-                    "INSERT INTO playlistdb.User (username, password, nome, cognome) VALUES (?, ?, ?, ?)");
+                    "INSERT INTO User (username, password, name, surname) VALUES (?, ?, ?, ?)");
             insertStmt.setString(1, username);
             insertStmt.setString(2, password); // In un progetto reale andrebbe criptata!
-            insertStmt.setString(3, nome);
-            insertStmt.setString(4, cognome);
+            insertStmt.setString(3, name);
+            insertStmt.setString(4, surname);
             insertStmt.executeUpdate();
 
-            response.sendRedirect("LoginServlet");
+            response.sendRedirect("HomeServlet");
 
         } catch (Exception e) {
             e.printStackTrace();
