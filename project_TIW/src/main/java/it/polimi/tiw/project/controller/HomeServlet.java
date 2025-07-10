@@ -1,4 +1,4 @@
-package it.polimi.tiw.project;
+package it.polimi.tiw.project.controller;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
