@@ -54,7 +54,7 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            // Inserisci nuovo utente
+            // Inserisci nuovo utente colgione
             PreparedStatement insertStmt = con.prepareStatement(
                     "INSERT INTO User (username, password, name, surname) VALUES (?, ?, ?, ?)");
             insertStmt.setString(1, username);
