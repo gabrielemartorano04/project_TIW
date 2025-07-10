@@ -43,7 +43,7 @@ public class RegisterServlet extends HttpServlet {
             Connection con = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC",
                     "root",
-                    "Pallanuoto04*");
+                    "1a2b3c4d");
 
             PreparedStatement checkStmt = con.prepareStatement("SELECT * FROM User WHERE username = ?");
             checkStmt.setString(1, username);

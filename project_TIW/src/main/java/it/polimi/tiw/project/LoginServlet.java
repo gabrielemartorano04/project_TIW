@@ -38,7 +38,7 @@ public class LoginServlet extends HttpServlet {
             Connection con = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC",
                     "root",  // ← cambia con il tuo utente
-                    "Pallanuoto04*" // ← cambia con la tua password
+                    "1a2b3c4d" // ← cambia con la tua password
             );
 
             PreparedStatement stmt = con.prepareStatement("SELECT * FROM User WHERE username = ? AND password = ?");
