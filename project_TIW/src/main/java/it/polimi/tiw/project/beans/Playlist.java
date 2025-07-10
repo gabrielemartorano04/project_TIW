@@ -1,11 +1,13 @@
 package it.polimi.tiw.project.beans;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 public class Playlist {
 	private String title;
 	private Date date;
 	private String user;
+	private ArrayList<Song> songs = new ArrayList<>();
 	
 	//setter 
 	
@@ -21,6 +23,10 @@ public class Playlist {
 		this.user=user;
 	}
 	
+	public void addSong(Song song) {
+		songs.add(song);
+	}
+	
 	//getters
 	
 	public String getTitle() {
@@ -33,6 +39,10 @@ public class Playlist {
 	
 	public String getUser() {
 		return user;
+	}
+	
+	private ArrayList<Song> getSongs() {
+		return songs;
 	}
 	
 }
