@@ -20,7 +20,7 @@ public class Song {
 		this.mp3=mp3;
 	}
 	
-	public void setGenere(Genres genre) {
+	public void setGenre(Genres genre) {
 		this.genre=genre;
 	}
 	
@@ -50,7 +50,7 @@ public class Song {
 		return mp3;
 	}
 	
-	public Genres getGenere() {
+	public Genres getGenre() {
 		return genre;
 	}
 	
