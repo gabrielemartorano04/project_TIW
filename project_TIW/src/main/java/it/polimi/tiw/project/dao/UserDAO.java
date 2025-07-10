@@ -24,7 +24,7 @@ public class UserDAO {
     }
 
     public boolean isUsernameTaken(String username) throws SQLException {
-        String query = "SELECT * FROM User WHERE username = ?";
+        String query = "SELECT * FROM `User` WHERE username = ?";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -34,6 +34,8 @@ public class UserDAO {
     }
 
     public void registerUser(String username, String password, String name, String surname) throws SQLException {
+        System.out.println("DEBUG: Sto inserendo l’utente nel DB");
+
         String query = "INSERT INTO User (username, password, name, surname) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);
@@ -42,5 +44,7 @@ public class UserDAO {
             stmt.setString(4, surname);
             stmt.executeUpdate();
         }
+
+        System.out.println("DEBUG: Inserimento completato.");
     }
 }
