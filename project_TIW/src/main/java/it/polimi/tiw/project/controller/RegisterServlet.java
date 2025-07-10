@@ -7,14 +7,15 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import it.polimi.tiw.project.dao.UserDAO;
+
 import java.sql.DriverManager;
 
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
+    boolean loginSuccess = false;
 
 	@Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -45,29 +46,15 @@ public class RegisterServlet extends HttpServlet {
                     "root",
                     "1a2b3c4d");
 
-            PreparedStatement checkStmt = con.prepareStatement("SELECT * FROM User WHERE username = ?");
-            checkStmt.setString(1, username);
-            ResultSet rs = checkStmt.executeQuery();
-            if (rs.next()) {
-                response.sendRedirect("register.html?error=taken");
-                con.close();
-                return;
-            }
+            UserDAO userDAO = new UserDAO(con);
+            loginSuccess = userDAO.checkCredentials(username, password);
 
-            // Inserisci nuovo utente colgione
-            PreparedStatement insertStmt = con.prepareStatement(
-                    "INSERT INTO User (username, password, name, surname) VALUES (?, ?, ?, ?)");
-            insertStmt.setString(1, username);
-            insertStmt.setString(2, password); // In un progetto reale andrebbe criptata!
-            insertStmt.setString(3, name);
-            insertStmt.setString(4, surname);
-            insertStmt.executeUpdate();
-
-            response.sendRedirect("HomeServlet");
+            con.close();
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("register.html?error=generic");
+            response.sendRedirect("login.html?error=db");
+            return;
         }
         
     }

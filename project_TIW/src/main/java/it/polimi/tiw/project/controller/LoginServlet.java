@@ -8,15 +8,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
+
+import it.polimi.tiw.project.dao.UserDAO;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
+    boolean loginSuccess = false;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -31,29 +32,20 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        boolean loginSuccess = false;
-
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC",
-                    "root",  // ← cambia con il tuo utente
-                    "1a2b3c4d" // ← cambia con la tua password
-            );
+                    "root",
+                    "1a2b3c4d");
 
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM User WHERE username = ? AND password = ?");
-            stmt.setString(1, username);
-            stmt.setString(2, password);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                loginSuccess = true;
-            }
+            UserDAO userDAO = new UserDAO(con);
+            loginSuccess = userDAO.checkCredentials(username, password);
 
             con.close();
 
         } catch (Exception e) {
-            e.printStackTrace(); // log interno
+            e.printStackTrace();
             response.sendRedirect("login.html?error=db");
             return;
         }
