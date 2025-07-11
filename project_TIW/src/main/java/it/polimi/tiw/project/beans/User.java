@@ -1,10 +1,13 @@
 package it.polimi.tiw.project.beans;
 
+import java.util.ArrayList;
+
 public class User {
 	private String username;
 	private String name;
 	private String surname;
 	private String password;
+	private ArrayList<Song> userSongs = new ArrayList<>();
 	
 	//setter
 	
@@ -22,6 +25,10 @@ public class User {
 	
 	public void setPassword(String password){
 		this.password=password;
+	}
+	
+	public void addSong(Song song) {
+		userSongs.add(song);
 	}
 	
 	//getters
@@ -42,5 +49,8 @@ public class User {
 		return password;
 	}
 	
+	public ArrayList<Song> getUserSongs(){
+		return userSongs;
+	}
 	
 }
