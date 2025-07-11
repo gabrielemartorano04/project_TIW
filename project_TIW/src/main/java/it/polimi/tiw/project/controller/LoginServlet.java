@@ -18,7 +18,6 @@ import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.project.dao.UserDAO;
-import it.polimi.tiw.project.beans.User;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {

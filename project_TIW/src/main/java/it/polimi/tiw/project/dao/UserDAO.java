@@ -34,11 +34,6 @@ public class UserDAO {
     }
 
     public void registerUser(String username, String password, String name, String surname) throws SQLException {
-        System.out.println("DEBUG: Sto inserendo l’utente nel DB");
-
-        if(isUsernameTaken(username)) {
-        	throw new SQLException("ERROR: username already taken");
-        }
         
         String query = "INSERT INTO User (username, password, name, surname) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
@@ -48,7 +43,5 @@ public class UserDAO {
             stmt.setString(4, surname);
             stmt.executeUpdate();
         }
-
-        System.out.println("DEBUG: Inserimento completato.");
     }
 }
