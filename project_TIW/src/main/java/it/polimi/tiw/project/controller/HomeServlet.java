@@ -49,6 +49,7 @@ public class HomeServlet extends HttpServlet {
             templateEngine = new TemplateEngine();
             templateEngine.setTemplateResolver(resolver);
         } catch (ClassNotFoundException | SQLException e) {
+        	
             throw new UnavailableException("Errore durante l'inizializzazione: " + e.getMessage());
         }
     }
