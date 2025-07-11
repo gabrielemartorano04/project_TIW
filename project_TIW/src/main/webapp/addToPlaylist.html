@@ -1,10 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>Aggiungi Brani alla Playlist</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="container">
+    <h1>Aggiungi brani alla playlist <span th:text="${playlist}"></span></h1>
 
+    <form th:action="@{/addToPlay}" method="post">
+        <input type="hidden" name="playlist" th:value="${playlist}"/>
+        <div th:if="${#lists.isEmpty(songs)}">
+            <p>Nessun brano disponibile da aggiungere.</p>
+        </div>
+        <div th:if="${!#lists.isEmpty(songs)}">
+            <ul>
+                <li th:each="s : ${songs}">
+                    <label>
+                        <input type="checkbox" name="songs" th:value="${s.title}">
+                        <span th:text="${s.title} + ' - ' + ${s.albumArtist} + ' (' + ${s.albumYear} + ')'"></span>
+                    </label>
+                </li>
+            </ul>
+            <button type="submit">Aggiungi alla Playlist</button>
+        </div>
+    </form>
+</div>
 </body>
 </html>
