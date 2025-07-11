@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Playlist</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f2f2f2;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 800px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        input, select, button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+        }
+
+        .playlist {
+            margin: 10px 0;
+        }
+
+        .playlist a {
+            text-decoration: none;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .section {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 th:text="'Benvenuto, ' + ${username}">Benvenuto</h1>
+
+    <div class="section">
+        <h2>Le tue Playlist</h2>
+        <div th:each="p : ${playlists}" class="playlist">
+            <a th:href="@{'/PlaylistServlet'(name=${p})}" th:text="${p}"></a>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Carica un nuovo brano</h2>
+        <form th:action="@{/UploadTrackServlet}" method="post" enctype="multipart/form-data">
+            <input type="text" name="titolo" placeholder="Titolo">
+            <input type="text" name="album" placeholder="Album">
+            <input type="text" name="interprete" placeholder="Interprete">
+            <input type="number" name="anno" placeholder="Anno">
+            <select name="genere">
+                <option>Pop</option><option>Rock</option><option>Jazz</option><option>Rap</option>
+                <option>Instrumental</option><option>Techno</option><option>Metal</option><option>Country</option>
+                <option>Punk</option><option>Reggaeton</option><option>Indie</option><option>Hip hop</option>
+                <option>Blues</option><option>Other</option>
+            </select>
+            <label>Copertina:</label><input type="file" name="cover">
+            <label>File MP3:</label><input type="file" name="audio">
+            <button type="submit">Carica brano</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Crea una nuova Playlist</h2>
+        <form th:action="@{/CreatePlaylistServlet}" method="post">
+            <input type="text" name="titolo" placeholder="Titolo playlist">
+            <!-- in futuro: aggiungi checkbox per i brani -->
+            <button type="submit">Crea Playlist</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
