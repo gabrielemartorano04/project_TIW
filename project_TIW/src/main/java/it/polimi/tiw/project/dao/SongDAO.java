@@ -18,20 +18,20 @@ public class SongDAO {
     //da modificare i nomi nelle query SQL, non so come sono salvati. 
     //Secondo me qua non andrà song, ma i parametri singoli 
     
-    public void insertSong(Song song) throws SQLException {
+    public void insertSong(String title, String mp3, Genres genre, String albumName, int albumYear, String albumImg, String albumArtist) throws SQLException {
     	
     	String query="SELECT year, interpreter, album_cover_path " +
                 "FROM Song WHERE album_title = ? LIMIT 1";
     	
     	try(PreparedStatement check= con.prepareStatement(query)){
-    		check.setString(1, song.getAlbumName());
+    		check.setString(1, albumName);
     		try (ResultSet rs = check.executeQuery()){
-    			if(rs.next()) {
+    			while(rs.next()) {
     				int year = rs.getInt("year");
     				String artist = rs.getString("interpreter");
-                    String albumImg = rs.getString("album_cover_path");
+                    String img = rs.getString("album_cover_path");
                     		//il controllo su album img è da controllare 
-                    if (year != song.getAlbumYear() || !artist.equals(song.getAlbumArtist()) || !albumImg.equals(song.getAlbumImg())) {
+                    if (year != albumYear || !artist.equals(albumArtist) || !albumImg.equals(img)) {
                     	throw new SQLException("Error: album già esistente con attributi differenti");
                     }
     			}
@@ -43,13 +43,13 @@ public class SongDAO {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     	
     	try(PreparedStatement stmt = con.prepareStatement(query)){
-    		stmt.setString(1, song.getTitle());
-            stmt.setString(2, song.getAlbumName());
-            stmt.setString(3, song.getAlbumImg());
-            stmt.setString(4, song.getAlbumArtist());
-            stmt.setInt(5, song.getAlbumYear());
-            stmt.setString(6, song.getGenre().toString());
-            stmt.setString(7, song.getMp3());
+    		stmt.setString(1, title);
+            stmt.setString(2, albumName);
+            stmt.setString(3, albumImg);
+            stmt.setString(4, albumArtist);
+            stmt.setInt(5, albumYear);
+            stmt.setString(6, genre.toString());
+            stmt.setString(7, mp3);
             
             stmt.executeUpdate();
     	}
