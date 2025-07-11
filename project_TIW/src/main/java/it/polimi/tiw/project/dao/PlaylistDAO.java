@@ -63,14 +63,14 @@ public class PlaylistDAO {
 
 	public ArrayList<Playlist> findPlaylistsByUser(String user) throws SQLException{
 		ArrayList<Playlist> playlists = new ArrayList<>();
-	    String query = "SELECT id, title, creation_date FROM Playlist WHERE user_id = ? ORDER BY creation_date DESC";
+	    String query = "SELECT title, date FROM Playlist WHERE user = ? ORDER BY date DESC";
 	    try (PreparedStatement stmt = con.prepareStatement(query)) {
 	        stmt.setString(1, user);
 	        try (ResultSet rs = stmt.executeQuery()) {
 	            while (rs.next()) {
 	                Playlist p = new Playlist();
 	                p.setTitle(rs.getString("title"));
-	                p.setDate(rs.getDate("creation_date"));
+	                p.setDate(rs.getDate("date"));
 	                p.setUser(user);
 	                playlists.add(p);
 	            }
