@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Playlist - ' + ${playlistName}">Playlist</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f2f2f2;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 800px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-top: 40px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 th:text="'Playlist: ' + ${playlistName}">Playlist</h1>
+
+    <div class="controls">
+        <form th:if="${hasPrev}" th:action="@{/playlist}" method="get">
+            <input type="hidden" name="name" th:value="${playlistName}">
+            <input type="hidden" name="page" th:value="${page - 1}">
+            <button type="submit">Precedenti</button>
+        </form>
+        <form th:if="${hasNext}" th:action="@{/playlist}" method="get">
+            <input type="hidden" name="name" th:value="${playlistName}">
+            <input type="hidden" name="page" th:value="${page + 1}">
+            <button type="submit">Successivi</button>
+        </form>
+    </div>
+
+    <table>
+        <tr>
+            <td th:each="track : ${tracks}">
+                <img th:src="@{${track.albumImg}}" alt="cover">
+                <div th:text="${track.title}">Titolo</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="section">
+        <h2>Aggiungi nuovi brani alla playlist</h2>
+        <form th:action="@{/AddToPlaylistServlet}" method="post">
+            <input type="hidden" name="playlist" th:value="${playlistName}">
+            <div th:each="s : ${allTracksNotInPlaylist}">
+                <input type="checkbox" name="songs" th:value="${s.title}" th:id="${s.title}">
+                <label th:for="${s.title}" th:text="${s.title} + ' - ' + ${s.albumArtist}"></label><br>
+            </div>
+            <button type="submit">Aggiungi selezionati</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

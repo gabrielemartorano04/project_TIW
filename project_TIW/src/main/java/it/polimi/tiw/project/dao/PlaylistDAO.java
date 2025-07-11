@@ -11,11 +11,11 @@ import it.polimi.tiw.project.beans.Genres;
 import it.polimi.tiw.project.beans.Playlist;
 import it.polimi.tiw.project.beans.Song;
 
-public class PlaylistDao {
+public class PlaylistDAO {
 	
 	private final Connection con;
 
-    public PlaylistDao(Connection con) {
+    public PlaylistDAO(Connection con) {
         this.con = con;
     }
 
