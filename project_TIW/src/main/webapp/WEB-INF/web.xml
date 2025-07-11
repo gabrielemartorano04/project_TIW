@@ -4,17 +4,30 @@
          http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-    <servlet>
-        <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>it.polimi.tiw.project.LoginServlet</servlet-class>
-    </servlet>
+    <!-- Parametri DB -->
+    <context-param>
+        <param-name>dbDriver</param-name>
+        <param-value>com.mysql.cj.jdbc.Driver</param-value>
+    </context-param>
 
-    <servlet-mapping>
-        <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/Login</url-pattern>
-    </servlet-mapping>
+    <context-param>
+        <param-name>dbUrl</param-name>
+        <param-value>jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>dbUser</param-name>
+        <param-value>root</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>dbPassword</param-name>
+        <param-value>1a2b3c4d</param-value>
+    </context-param>
+
+    <!-- Servlet Login -->
 
     <welcome-file-list>
-    	<welcome-file>login.html</welcome-file>
-	</welcome-file-list>
+        <welcome-file>login</welcome-file>
+    </welcome-file-list>
 </web-app>

@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Registrazione</title>
+    <meta charset="UTF-8">
+    <title>Registrazione</title>
+    <style>/* stesso stile tuo */</style>
 </head>
 <body>
-  <h2>Registrati</h2>
-
-<form th:action="@{/RegisterServlet}" method="post">
-    Nome: <input type="text" name="name" required><br>
-    Cognome: <input type="text" name="surname" required><br>
-    Username: <input type="text" name="username" required><br>
-    Password: <input type="password" name="password" required><br>
-    Conferma Password: <input type="password" name="confirm" required><br>
-    <input type="submit" value="Registrati">
-  </form>
-
-  <p><a th:href="@{/LoginServlet}">Torna al login</a></p>
+<form th:action="@{/register}" method="post">
+    <h2>Benvenuto! Crea un nuovo account</h2>
+    <input type="text" name="name" placeholder="Nome" required>
+    <input type="text" name="surname" placeholder="Cognome" required>
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="password" name="confirm" placeholder="Conferma Password" required>
+    <button type="submit">Registrati</button>
+    <div class="error" th:if="${errorMsg != null}" th:text="${errorMsg}"></div>
+    <div class="link"><a th:href="@{/login}">Hai già un account? Accedi</a></div>
+</form>
 </body>
 </html>

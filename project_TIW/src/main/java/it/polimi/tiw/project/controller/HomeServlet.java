@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Arrays;
 
-@WebServlet("/HomeServlet")
+@WebServlet("/home")
 public class HomeServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;

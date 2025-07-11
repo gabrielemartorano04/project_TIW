@@ -1,118 +1,99 @@
 package it.polimi.tiw.project.controller;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.UnavailableException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Arrays;
-import java.util.List;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
+import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.project.dao.UserDAO;
+import it.polimi.tiw.project.beans.User;
 
-@WebServlet("/LoginServlet")
+@WebServlet("/login")
 public class LoginServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private Connection connection;
+	private TemplateEngine templateEngine;
 
-    private static final long serialVersionUID = 1L;
-    boolean loginSuccess = false;
+	public void init() throws ServletException {
+		try {
+			ServletContext context = getServletContext();
+			String driver = context.getInitParameter("dbDriver");
+			String url = context.getInitParameter("dbUrl");
+			String user = context.getInitParameter("dbUser");
+			String password = context.getInitParameter("dbPassword");
+			Class.forName(driver);
+			connection = DriverManager.getConnection(url, user, password);
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+			JakartaServletWebApplication webApp = JakartaServletWebApplication.buildApplication(getServletContext());
+			WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApp);
+			templateResolver.setTemplateMode(TemplateMode.HTML);
+			templateResolver.setPrefix("/");
+			templateResolver.setSuffix(".html");
+			templateResolver.setCharacterEncoding("UTF-8");
 
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+			templateEngine = new TemplateEngine();
+			templateEngine.setTemplateResolver(templateResolver);
 
-        // Controllo base
-        if (username == null || password == null || username.isBlank() || password.isBlank()) {
-            response.sendRedirect("login.html?error=1");
-            return;
-        }
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new UnavailableException("Database connection error: " + e.getMessage());
+		}
+	}
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/playlistdb?serverTimezone=UTC",
-                    "root",
-                    "1a2b3c4d");
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		JakartaServletWebApplication webApp = JakartaServletWebApplication.buildApplication(getServletContext());
+		WebContext ctx = new WebContext(webApp.buildExchange(request, response), request.getLocale());
+		templateEngine.process("login", ctx, response.getWriter());
+	}
 
-            UserDAO userDAO = new UserDAO(con);
-            loginSuccess = userDAO.checkCredentials(username, password);
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
 
-            con.close();
+		if (username == null || password == null || username.isBlank() || password.isBlank()) {
+			forwardWithError(request, response, "Compila tutti i campi.");
+			return;
+		}
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("login.html?error=db");
-            return;
-        }
+		UserDAO userDAO = new UserDAO(connection);
+		try {
+			boolean valid = userDAO.checkCredentials(username, password);
+			if (!valid) {
+				forwardWithError(request, response, "Credenziali non valide.");
+				return;
+			}
+			HttpSession session = request.getSession();
+			session.setAttribute("currentUser", username);
+			response.sendRedirect(getServletContext().getContextPath() + "/home"); // o HomeWorker
+		} catch (SQLException e) {
+			forwardWithError(request, response, "Errore durante il login.");
+		}
+	}
 
-        // ✅ Login hardcoded fittizio (ancora valido)
-        if (username.equals("admin") && password.equals("1234")) {
-            loginSuccess = true;
-        }
+	private void forwardWithError(HttpServletRequest request, HttpServletResponse response, String errorMsg)
+			throws IOException {
+		JakartaServletWebApplication webApp = JakartaServletWebApplication.buildApplication(getServletContext());
+		WebContext ctx = new WebContext(webApp.buildExchange(request, response), request.getLocale());
+		ctx.setVariable("errorMsg", errorMsg);
+		templateEngine.process("login", ctx, response.getWriter());
+	}
 
-        if (loginSuccess) {
-            HttpSession session = request.getSession();
-            session.setAttribute("username", username);
-            response.sendRedirect("HomeServlet");
-        } else {
-            response.sendRedirect("login.html?error=1");
-        }
-    }
-	
-	@Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("username") == null) {
-            response.sendRedirect("login.html");
-            return;
-        }
-
-        String username = (String) session.getAttribute("username");
-
-        // MOCK: playlist utente fittizie (da sostituire con DAO più avanti)
-        List<String> playlists = Arrays.asList("Allenamento", "Relax", "Auto");
-
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-
-        out.println("<!DOCTYPE html>");
-        out.println("<html><head><title>Home</title></head><body>");
-
-        out.println("<h1>Benvenuto, " + username + "</h1>");
-
-        out.println("<h2>Le tue Playlist</h2>");
-        for (String playlist : playlists) {
-            out.println("<p><a href='PlaylistServlet?name=" + playlist + "'>" + playlist + "</a></p>");
-        }
-
-        out.println("<h2>Carica un nuovo brano</h2>");
-        out.println("<form action='UploadTrackServlet' method='post' enctype='multipart/form-data'>");
-        out.println("Titolo: <input type='text' name='titolo'><br>");
-        out.println("Album: <input type='text' name='album'><br>");
-        out.println("Interprete: <input type='text' name='interprete'><br>");
-        out.println("Anno: <input type='number' name='anno'><br>");
-        out.println("Genere: <select name='genere'>");
-        out.println("<option>Pop</option><option>Rock</option><option>Jazz</option>");
-        out.println("</select><br>");
-        out.println("Copertina: <input type='file' name='cover'><br>");
-        out.println("File MP3: <input type='file' name='audio'><br>");
-        out.println("<input type='submit' value='Carica brano'>");
-        out.println("</form>");
-
-        out.println("<h2>Crea una nuova Playlist</h2>");
-        out.println("<form action='CreatePlaylistServlet' method='post'>");
-        out.println("Titolo: <input type='text' name='titolo'><br>");
-        out.println("<!-- Qui metteremo checkbox per i brani -->");
-        out.println("<input type='submit' value='Crea Playlist'>");
-        out.println("</form>");
-
-        out.println("</body></html>");
-    }
+	public void destroy() {
+		try {
+			if (connection != null) connection.close();
+		} catch (SQLException ignored) {}
+	}
 }
