@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Home - Playlist</title>
+<<<<<<< HEAD
     <style>
         body {
             font-family: sans-serif;
@@ -72,6 +73,9 @@
             margin-bottom: 20px;
         }
     </style>
+=======
+    <link rel="stylesheet" href="style.css">
+>>>>>>> branch 'master' of https://github.com/gabrielemartorano04/project_TIW.git
 </head>
 <body>
 <div class="container">
@@ -82,13 +86,8 @@
 
     <div class="section">
         <h2>Le tue Playlist</h2>
-
-        <!-- Nessuna playlist -->
-        <p class="no-playlists" th:if="${playlists.isEmpty()}">Nessuna playlist creata</p>
-
-        <!-- Elenco playlist -->
-        <div th:each="p : ${playlists}" class="playlist" th:unless="${playlists.isEmpty()}">
-            <a th:href="@{'/playlist'(name=${p})}" th:text="${p}"></a>
+        <div th:each="p : ${playlists}" class="playlist">
+            <a th:href="@{'/PlaylistServlet'(name=${p})}" th:text="${p}"></a>
         </div>
     </div>
 
@@ -114,8 +113,13 @@
 
     <div class="section">
         <h2>Crea una nuova Playlist</h2>
+<<<<<<< HEAD
         <form th:action="@{/addToPlaylist}" method="post">
             <input type="text" name="titolo" placeholder="Titolo playlist" required>
+=======
+        <form th:action="@{/playlist}" method="post">
+            <input type="text" name="titolo" placeholder="Titolo playlist">
+>>>>>>> branch 'master' of https://github.com/gabrielemartorano04/project_TIW.git
             <button type="submit">Crea Playlist</button>
         </form>
     </div>
