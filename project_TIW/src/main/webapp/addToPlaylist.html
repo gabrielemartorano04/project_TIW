@@ -7,13 +7,23 @@
 </head>
 <body>
 <div class="container">
+
+    <!-- Pulsante Torna alla Home -->
+    <div style="margin-bottom: 20px;">
+        <form th:action="@{/createPlaylist}" method="get">
+            <button type="submit" style="padding: 6px 12px;">← Torna alla Home</button>
+        </form>
+    </div>
+
     <h1>Aggiungi brani alla playlist <span th:text="${playlist}"></span></h1>
 
     <form th:action="@{/addToPlaylist}" method="post">
         <input type="hidden" name="playlist" th:value="${playlist}"/>
+        
         <div th:if="${#lists.isEmpty(songs)}">
             <p>Nessun brano disponibile da aggiungere.</p>
         </div>
+        
         <div th:if="${!#lists.isEmpty(songs)}">
             <ul>
                 <li th:each="s : ${songs}">
