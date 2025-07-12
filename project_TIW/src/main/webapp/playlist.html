@@ -44,27 +44,14 @@
     </table>
 
     <!-- Sezione per aggiungere nuovi brani -->
-    <div class="section">
-        <h2>Aggiungi nuovi brani alla playlist</h2>
-        <form th:action="@{/addToPlaylist}" method="post">
-            <input type="hidden" name="playlist" th:value="${playlistName}">
-
-            <!-- Nessun brano disponibile -->
-            <p th:if="${allTracksNotInPlaylist.isEmpty()}" style="font-style: italic; color: #888;">
-                Nessun nuovo brano caricato
-            </p>
-
-            <!-- Elenco brani disponibili con checkbox a sinistra -->
-            <div th:each="s : ${allTracksNotInPlaylist}" th:unless="${allTracksNotInPlaylist.isEmpty()}">
-                <label>
-                    <input type="checkbox" name="songs" th:value="${s.title}">
-                    <span th:text="${s.title} + ' - ' + ${s.albumArtist}"></span>
-                </label><br>
-            </div>
-
-            <button type="submit" th:unless="${allTracksNotInPlaylist.isEmpty()}">Aggiungi selezionati</button>
-        </form>
-    </div>
-</div>
+	<div class="section">
+	    <h2>Aggiungi nuovi brani alla playlist</h2>
+	    
+	    <form th:action="@{/addToPlaylist}" method="get">
+	        <input type="hidden" name="playlist" th:value="${playlistName}">
+	        <button type="submit">Vai a selezione brani</button>
+	    </form>
+	</div>
+	</div>
 </body>
 </html>
