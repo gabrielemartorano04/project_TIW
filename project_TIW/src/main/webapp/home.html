@@ -20,7 +20,7 @@
 
         <!-- Elenco playlist -->
         <div th:each="p : ${playlists}" class="playlist" th:unless="${playlists.isEmpty()}">
-            <a th:href="@{'/playlist'(name=${p})}" th:text="${p}"></a>
+            <a th:href="@{'/playlist'(name=${p.title})}" th:text="${p.title}"></a>
         </div>
     </div>
 

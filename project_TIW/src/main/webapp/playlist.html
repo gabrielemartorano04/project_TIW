@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="'Playlist - ' + ${playlistName}">Playlist</title>
-        <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
 <div class="container">
     <h1 th:text="'Playlist: ' + ${playlistName}">Playlist</h1>
 
+    <!-- Controlli paginazione -->
     <div class="controls">
         <form th:if="${hasPrev}" th:action="@{/playlist}" method="get">
             <input type="hidden" name="name" th:value="${playlistName}">
@@ -22,24 +23,38 @@
         </form>
     </div>
 
+    <!-- Elenco canzoni -->
     <table>
         <tr>
             <td th:each="track : ${tracks}">
-                <img th:src="@{${track.albumImg}}" alt="cover">
-                <div th:text="${track.title}">Titolo</div>
+                <a th:href="@{'/player'(title=${track.title})}">
+                    <img th:src="${track.albumImg}" alt="cover" style="width: 150px; height: 150px;">
+                    <div th:text="${track.title}">Titolo</div>
+                </a>
             </td>
         </tr>
     </table>
 
+    <!-- Sezione per aggiungere nuovi brani -->
     <div class="section">
         <h2>Aggiungi nuovi brani alla playlist</h2>
         <form th:action="@{/addToPlaylist}" method="post">
             <input type="hidden" name="playlist" th:value="${playlistName}">
-            <div th:each="s : ${allTracksNotInPlaylist}">
-                <input type="checkbox" name="songs" th:value="${s.title}" th:id="${s.title}">
-                <label th:for="${s.title}" th:text="${s.title} + ' - ' + ${s.albumArtist}"></label><br>
+
+            <!-- Nessun brano disponibile -->
+            <p th:if="${allTracksNotInPlaylist.isEmpty()}" style="font-style: italic; color: #888;">
+                Nessun nuovo brano caricato
+            </p>
+
+            <!-- Elenco brani disponibili con checkbox a sinistra -->
+            <div th:each="s : ${allTracksNotInPlaylist}" th:unless="${allTracksNotInPlaylist.isEmpty()}">
+                <label>
+                    <input type="checkbox" name="songs" th:value="${s.title}">
+                    <span th:text="${s.title} + ' - ' + ${s.albumArtist}"></span>
+                </label><br>
             </div>
-            <button type="submit">Aggiungi selezionati</button>
+
+            <button type="submit" th:unless="${allTracksNotInPlaylist.isEmpty()}">Aggiungi selezionati</button>
         </form>
     </div>
 </div>
