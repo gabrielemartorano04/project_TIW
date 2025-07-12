@@ -53,10 +53,31 @@
             font-style: italic;
             margin-top: 15px;
         }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
+    <div th:if="${uploadSuccess}" class="success-message">✅ Brano aggiunto con successo!</div>
+    <div th:if="${uploadError}" class="error-message" th:text="${uploadError}"></div>
+
     <h1 th:text="'Benvenuto, ' + ${username}">Benvenuto</h1>
 
     <div class="section">
@@ -73,19 +94,20 @@
 
     <div class="section">
         <h2>Carica un nuovo brano</h2>
-        <form th:action="@{/UploadTrackServlet}" method="post" enctype="multipart/form-data">
-            <input type="text" name="titolo" placeholder="Titolo">
-            <input type="text" name="album" placeholder="Album">
-            <input type="text" name="interprete" placeholder="Interprete">
-            <input type="number" name="anno" placeholder="Anno">
-            <select name="genere">
+        <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
+            <input type="text" name="titolo" placeholder="Titolo" required>
+            <input type="text" name="album" placeholder="Album" required>
+            <input type="text" name="interprete" placeholder="Interprete" required>
+            <input type="number" name="anno" placeholder="Anno" required>
+            <select name="genere" required>
+                <option disabled selected value="">Scegli un genere</option>
                 <option>Pop</option><option>Rock</option><option>Jazz</option><option>Rap</option>
                 <option>Instrumental</option><option>Techno</option><option>Metal</option><option>Country</option>
-                <option>Punk</option><option>Reggaeton</option><option>Indie</option><option>Hip hop</option>
+                <option>Punk</option><option>Reggaeton</option><option>Indie</option><option>Hip Hop</option>
                 <option>Blues</option><option>Other</option>
             </select>
-            <label>Copertina:</label><input type="file" name="cover">
-            <label>File MP3:</label><input type="file" name="audio">
+            <label>Copertina:</label><input type="file" name="cover" required>
+            <label>File MP3:</label><input type="file" name="audio" required>
             <button type="submit">Carica brano</button>
         </form>
     </div>
@@ -93,7 +115,7 @@
     <div class="section">
         <h2>Crea una nuova Playlist</h2>
         <form th:action="@{/addToPlaylist}" method="post">
-            <input type="text" name="titolo" placeholder="Titolo playlist">
+            <input type="text" name="titolo" placeholder="Titolo playlist" required>
             <button type="submit">Crea Playlist</button>
         </form>
     </div>

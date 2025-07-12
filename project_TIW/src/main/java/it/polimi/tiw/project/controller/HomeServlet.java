@@ -81,6 +81,25 @@ public class HomeServlet extends HttpServlet {
         ctx.setVariable("username", username);
         ctx.setVariable("playlists", playlists);
 
+        // Mostra eventuale messaggio di successo o errore
+        Boolean uploadSuccess = (Boolean) session.getAttribute("uploadSuccess");
+        String uploadError = (String) session.getAttribute("uploadError");
+        if (uploadSuccess != null && uploadSuccess) {
+            ctx.setVariable("uploadSuccess", true);
+            session.removeAttribute("uploadSuccess");
+        }
+        if (uploadError != null) {
+            ctx.setVariable("uploadError", uploadError);
+            session.removeAttribute("uploadError");
+        }
+
         templateEngine.process("home", ctx, response.getWriter());
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            if (connection != null) connection.close();
+        } catch (SQLException ignored) {}
     }
 }
