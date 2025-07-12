@@ -80,7 +80,7 @@
 
     <div class="section">
         <h2>Aggiungi nuovi brani alla playlist</h2>
-        <form th:action="@{/AddToPlaylistServlet}" method="post">
+        <form th:action="@{/addToPlaylist}" method="post">
             <input type="hidden" name="playlist" th:value="${playlistName}">
             <div th:each="s : ${allTracksNotInPlaylist}">
                 <input type="checkbox" name="songs" th:value="${s.title}" th:id="${s.title}">

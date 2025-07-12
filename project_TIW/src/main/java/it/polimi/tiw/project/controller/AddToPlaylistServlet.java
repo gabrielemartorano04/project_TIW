@@ -1,26 +1,29 @@
 package it.polimi.tiw.project.controller;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
-import org.thymeleaf.web.servlet.JakartaServletWebApplication;
+import it.polimi.tiw.project.dao.PlaylistDAO;
+import it.polimi.tiw.project.dao.SongDAO;
+import it.polimi.tiw.project.beans.Song;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
-@WebServlet("/addToPlay")
-public class AddToPlaylistServlet extends HttpServlet{
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
 
-	private static final long serialVersionUID = 1L;
+@WebServlet("/addToPlaylist")
+public class AddToPlaylistServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
     private Connection connection;
 
@@ -47,14 +50,80 @@ public class AddToPlaylistServlet extends HttpServlet{
             throw new ServletException(e);
         }
     }
-    
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("currentUser") == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        String username = (String) session.getAttribute("currentUser");
+        String playlistTitle = request.getParameter("playlist");
+
+        try {
+            SongDAO songDAO = new SongDAO(connection);
+            PlaylistDAO playlistDAO = new PlaylistDAO(connection);
+
+            List<Song> allUserSongs = songDAO.findSongByUser(username);
+            List<Song> playlistSongs = playlistDAO.findTracksInPlaylist(playlistTitle);
+
+            // Escludi le canzoni già presenti nella playlist
+            Set<String> playlistTitles = new HashSet<>();
+            for (Song s : playlistSongs) {
+                playlistTitles.add(s.getTitle());
+            }
+
+            List<Song> availableSongs = new ArrayList<>();
+            for (Song s : allUserSongs) {
+                if (!playlistTitles.contains(s.getTitle())) {
+                    availableSongs.add(s);
+                }
+            }
+
+            WebContext ctx = new WebContext(
+                    JakartaServletWebApplication.buildApplication(getServletContext()).buildExchange(request, response),
+                    request.getLocale());
+            ctx.setVariable("songs", availableSongs);
+            ctx.setVariable("playlist", playlistTitle);
+
+            templateEngine.process("addToPlaylist", ctx, response.getWriter());
+
+        } catch (SQLException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante il recupero delle canzoni");
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("currentUser") == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        String username = (String) session.getAttribute("currentUser");
+        String playlistTitle = request.getParameter("playlist");
+        String[] selectedSongs = request.getParameterValues("songs");
+
+        if (selectedSongs != null) {
+            try {
+                PlaylistDAO playlistDAO = new PlaylistDAO(connection);
+                ArrayList<String> songsToAdd = new ArrayList<>(Arrays.asList(selectedSongs));
+                playlistDAO.addTracksToPlaylist(playlistTitle, songsToAdd);
+            } catch (SQLException e) {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante l'aggiunta delle canzoni");
+                return;
+            }
+        }
+
+        response.sendRedirect("home");
     }
 
     public void destroy() {
-        try { 
-        	if (connection != null) connection.close(); 
-    	} catch (SQLException ignored) {}
+        try {
+            if (connection != null) connection.close();
+        } catch (SQLException ignored) {}
     }
 }

@@ -1,27 +1,29 @@
 package it.polimi.tiw.project.controller;
 
+import it.polimi.tiw.project.beans.Song;
+import it.polimi.tiw.project.dao.SongDAO;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
+import org.thymeleaf.web.servlet.JakartaServletWebApplication;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
-import org.thymeleaf.web.servlet.JakartaServletWebApplication;
-
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 @WebServlet("/player")
-public class PlayerServlet extends HttpServlet{
+public class PlayerServlet extends HttpServlet {
 
-	private static final long serialVersionUID = 1L;
-	private TemplateEngine templateEngine;
+    private static final long serialVersionUID = 1L;
+    private TemplateEngine templateEngine;
     private Connection connection;
 
     public void init() throws ServletException {
@@ -47,14 +49,45 @@ public class PlayerServlet extends HttpServlet{
             throw new ServletException(e);
         }
     }
-    
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("currentUser") == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        String username = (String) session.getAttribute("currentUser");
+        String title = request.getParameter("title");
+
+        if (title == null || title.isBlank()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Titolo mancante");
+            return;
+        }
+
+        SongDAO dao = new SongDAO(connection);
+        try {
+            Song song = dao.findSong(title, username);
+            if (song == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Brano non trovato");
+                return;
+            }
+
+            WebContext ctx = new WebContext(
+                JakartaServletWebApplication.buildApplication(getServletContext()).buildExchange(request, response),
+                request.getLocale());
+
+            ctx.setVariable("song", song);
+            templateEngine.process("player", ctx, response.getWriter());
+
+        } catch (SQLException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante il caricamento del brano");
+        }
     }
 
     public void destroy() {
-        try { 
-        	if (connection != null) connection.close(); 
-    	} catch (SQLException ignored) {}
+        try {
+            if (connection != null) connection.close();
+        } catch (SQLException ignored) {}
     }
 }
