@@ -66,19 +66,19 @@ public class UploadServlet extends HttpServlet {
             int anno = Integer.parseInt(annoStr);
             Genres genere = Genres.valueOf(genereStr.toUpperCase().replace(" ", "_"));
 
-            // Percorsi locali (puoi cambiarli se vuoi)
-            String uploadDir = getServletContext().getRealPath("/") + "uploads/";
-            new File(uploadDir).mkdirs(); // crea se non esiste
+            String imgDir = getServletContext().getRealPath("/img/");
+            String mp3Dir = getServletContext().getRealPath("/mp3/");
+            new File(imgDir).mkdirs();
+            new File(mp3Dir).mkdirs();
 
-            String audioPath = uploadDir + System.currentTimeMillis() + "_" + audioPart.getSubmittedFileName();
-            String coverPath = uploadDir + System.currentTimeMillis() + "_" + coverPart.getSubmittedFileName();
+            String audioPath = mp3Dir + System.currentTimeMillis() + "_" + audioPart.getSubmittedFileName();
+            String coverPath = imgDir + System.currentTimeMillis() + "_" + coverPart.getSubmittedFileName();
 
             Files.copy(audioPart.getInputStream(), new File(audioPath).toPath());
             Files.copy(coverPart.getInputStream(), new File(coverPath).toPath());
 
-            // Percorsi relativi (per salvarli nel DB)
-            String audioDbPath = "uploads/" + new File(audioPath).getName();
-            String coverDbPath = "uploads/" + new File(coverPath).getName();
+            String audioDbPath = "mp3/" + new File(audioPath).getName();
+            String coverDbPath = "img/" + new File(coverPath).getName();
 
             SongDAO dao = new SongDAO(connection);
             dao.insertSong(titolo, audioDbPath, genere, album, anno, coverDbPath, interprete, user);
