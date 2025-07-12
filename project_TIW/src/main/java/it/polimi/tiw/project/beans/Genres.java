@@ -1,18 +1,18 @@
 package it.polimi.tiw.project.beans;
 
 public enum Genres {
-	Pop,
-	Rock,
-	Jazz,
-	Rap,
-	Instrumental,
-	Techno,
-	Metal,
-	Country,
-	Punk, 
-	Raggaeton,
-	Indie,
-	Hip_Hop,
-	Blues,
-	Other
+	POP,
+	ROCK,
+	JAZZ,
+	RAP,
+	INSTRUMENTAL,
+	TECHNO,
+	METAL,
+	COUNTRY,
+	PUNK, 
+	RAGGAETON,
+	INDIE,
+	HIP_HOP,
+	BLUES,
+	OTHER
 }

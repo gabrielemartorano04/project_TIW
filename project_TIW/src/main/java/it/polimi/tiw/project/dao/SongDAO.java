@@ -22,8 +22,8 @@ public class SongDAO {
     		throw new SQLException("ERROR: a song with this title already exists");
     	}
     	
-    	String query="SELECT year, interpreter, album_cover_path " +
-                "FROM Song WHERE album_title = ? AND user_id = ? LIMIT 1";
+    	String query="SELECT album_year, album_artist, album_image " +
+                "FROM Song WHERE album_title = ? AND user = ? LIMIT 1";
     	
     	try(PreparedStatement check= con.prepareStatement(query)){
     		check.setString(1, albumName);
@@ -85,7 +85,7 @@ public class SongDAO {
     }
     
     public boolean songAlreadyExists(String username, String songTitle) throws SQLException {
-        String query = "SELECT 1 FROM Songs WHERE user = ? AND title = ?";
+        String query = "SELECT 1 FROM Song WHERE user = ? AND title = ?";
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);
             stmt.setString(2, songTitle);
