@@ -3,54 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="'Playlist - ' + ${playlistName}">Playlist</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f2f2f2;
-            padding: 40px;
-        }
-
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 800px;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        td {
-            padding: 10px;
-        }
-
-        img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .section {
-            margin-top: 40px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-weight: bold;
-        }
-    </style>
+        <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
 <div class="container">
