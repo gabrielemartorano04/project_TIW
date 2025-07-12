@@ -81,7 +81,7 @@ public class RegisterServlet extends HttpServlet {
 			}
 
 			userDAO.registerUser(username, password, name, surname);
-			response.sendRedirect(getServletContext().getContextPath() + "/home");
+			response.sendRedirect(getServletContext().getContextPath() + "/createPlaylist");
 
 		} catch (SQLException e) {
 			forwardWithError(request, response, "Errore nel database durante la registrazione");

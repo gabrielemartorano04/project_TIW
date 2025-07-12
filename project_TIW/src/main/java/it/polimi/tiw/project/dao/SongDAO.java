@@ -99,7 +99,7 @@ public class SongDAO {
     	
     	ArrayList<Song> songs = new ArrayList<>();
     	
-        String query = "SELECT * FROM Song WHERE user = ? ORDER BY s.album_artist ASC, s.album_year ASC";
+        String query = "SELECT * FROM Song WHERE user = ? ORDER BY album_artist ASC, album_year ASC";
 
         try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, username);

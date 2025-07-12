@@ -9,7 +9,7 @@
 <div class="container">
     <h1>Aggiungi brani alla playlist <span th:text="${playlist}"></span></h1>
 
-    <form th:action="@{/addToPlay}" method="post">
+    <form th:action="@{/addToPlaylist}" method="post">
         <input type="hidden" name="playlist" th:value="${playlist}"/>
         <div th:if="${#lists.isEmpty(songs)}">
             <p>Nessun brano disponibile da aggiungere.</p>

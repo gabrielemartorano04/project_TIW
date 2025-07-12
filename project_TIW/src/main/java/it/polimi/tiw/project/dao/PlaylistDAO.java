@@ -20,11 +20,11 @@ public class PlaylistDAO {
         this.con = con;
     }
 
-	public void createPlaylist(String title, String playlistTitle, LocalDate today) throws SQLException{
+	public void createPlaylist(String user, String playlistTitle, LocalDate today) throws SQLException{
 		String query="SELECT user FROM `Playlist` WHERE title=?";
 		
 		try(PreparedStatement check = con.prepareStatement(query)){
-			check.setString(1, title);
+			check.setString(1, playlistTitle);
 			try(ResultSet rs= check.executeQuery()){
 				while(rs.next()){
 					String existingUser = rs.getString("user");
@@ -35,12 +35,15 @@ public class PlaylistDAO {
 			}
 		}
 		
+		System.out.println("aggiungio in db");
 		
-		query = "INSERT INTO Playlist(title, date, user, song) VALUES (?, ?, ?, ?)";
+		query = "INSERT INTO Playlist(title, date, user) VALUES (?, ?, ?)";
 		try(PreparedStatement stmt = con.prepareStatement(query)){
-			stmt.setString(1, title);
-			stmt.setString(2, playlistTitle);
-			stmt.setDate(3, java.sql.Date.valueOf(today));
+			System.out.println("preparo stmt");
+			stmt.setString(1, playlistTitle);
+			stmt.setDate(2, java.sql.Date.valueOf(today));
+			stmt.setString(3, user);
+            stmt.executeUpdate();
 		}
 		
 	};

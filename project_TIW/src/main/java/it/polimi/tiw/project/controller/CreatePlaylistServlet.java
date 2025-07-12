@@ -23,8 +23,8 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import it.polimi.tiw.project.beans.Playlist;
 import it.polimi.tiw.project.dao.PlaylistDAO;
 
-@WebServlet("/home")
-public class HomeServlet extends HttpServlet {
+@WebServlet("/createPlaylist")
+public class CreatePlaylistServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private Connection connection;
@@ -114,18 +114,19 @@ public class HomeServlet extends HttpServlet {
 
         if (playlistTitle == null || playlistTitle.isBlank()) {
             session.setAttribute("uploadError", "Il titolo della playlist non può essere vuoto.");
-            response.sendRedirect("home");
+            response.sendRedirect("createPlaylist");
             return;
         }
 
         PlaylistDAO dao = new PlaylistDAO(connection);
         try {
             LocalDate today = LocalDate.now();
+            System.out.println("chiamo createPlaylist");
             dao.createPlaylist(username, playlistTitle, today);
-            response.sendRedirect("addToPlaylist?playlistName=" + playlistTitle);
+            response.sendRedirect("addToPlaylist?playlist=" + playlistTitle);
         } catch (SQLException e) {
             session.setAttribute("uploadError", "Errore nella creazione della playlist: " + e.getMessage());
-            response.sendRedirect("home");
+            response.sendRedirect("createPlaylist");
         }
     }
 

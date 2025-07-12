@@ -118,7 +118,7 @@ public class AddToPlaylistServlet extends HttpServlet {
             }
         }
 
-        response.sendRedirect("home");
+        response.sendRedirect("createPlaylist");
     }
 
     public void destroy() {

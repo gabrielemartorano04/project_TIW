@@ -58,7 +58,7 @@ public class UploadServlet extends HttpServlet {
         if (titolo == null || titolo.isBlank() || album == null || interprete == null || annoStr == null || genereStr == null
                 || audioPart == null || coverPart == null) {
             session.setAttribute("uploadError", "Dati mancanti o incompleti");
-            response.sendRedirect("home");
+            response.sendRedirect("createPlaylist");
             return;
         }
 
@@ -88,7 +88,7 @@ public class UploadServlet extends HttpServlet {
             session.setAttribute("uploadError", "Errore durante il caricamento del brano: " + e.getMessage());
         }
 
-        response.sendRedirect("home");
+        response.sendRedirect("createPlaylist");
     }
 
     public void destroy() {

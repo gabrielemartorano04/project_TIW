@@ -76,7 +76,7 @@ public class LoginServlet extends HttpServlet {
 			}
 			HttpSession session = request.getSession();
 			session.setAttribute("currentUser", username);
-			response.sendRedirect(getServletContext().getContextPath() + "/home"); // o HomeWorker
+			response.sendRedirect(getServletContext().getContextPath() + "/createPlaylist");
 		} catch (SQLException e) {
 			forwardWithError(request, response, "Errore durante il login.");
 		}
