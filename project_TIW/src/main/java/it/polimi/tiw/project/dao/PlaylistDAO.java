@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import it.polimi.tiw.project.beans.Genres;
@@ -19,7 +20,7 @@ public class PlaylistDAO {
         this.con = con;
     }
 
-	public void createPlaylist(String title, Date date, String user) throws SQLException{
+	public void createPlaylist(String title, String playlistTitle, LocalDate today) throws SQLException{
 		String query="SELECT user FROM `Playlist` WHERE title=?";
 		
 		try(PreparedStatement check = con.prepareStatement(query)){
@@ -27,7 +28,7 @@ public class PlaylistDAO {
 			try(ResultSet rs= check.executeQuery()){
 				while(rs.next()){
 					String existingUser = rs.getString("user");
-					if(user.equals(existingUser)) {
+					if(today.equals(existingUser)) {
 						throw new SQLException("ERROR: Playlist title already used");
 					}
 				}
@@ -38,8 +39,8 @@ public class PlaylistDAO {
 		query = "INSERT INTO Playlist(title, date, user, song) VALUES (?, ?, ?, ?)";
 		try(PreparedStatement stmt = con.prepareStatement(query)){
 			stmt.setString(1, title);
-			stmt.setDate(2, date);
-			stmt.setString(3, user);
+			stmt.setString(2, playlistTitle);
+			stmt.setDate(3, java.sql.Date.valueOf(today));
 		}
 		
 	};

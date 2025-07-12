@@ -8,8 +8,10 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.thymeleaf.TemplateEngine;
@@ -81,19 +83,50 @@ public class HomeServlet extends HttpServlet {
         ctx.setVariable("username", username);
         ctx.setVariable("playlists", playlists);
 
-        // Mostra eventuale messaggio di successo o errore
-        Boolean uploadSuccess = (Boolean) session.getAttribute("uploadSuccess");
-        String uploadError = (String) session.getAttribute("uploadError");
+        // Messaggi opzionali
+        HttpSession sessionAttr = request.getSession();
+        Boolean uploadSuccess = (Boolean) sessionAttr.getAttribute("uploadSuccess");
+        String uploadError = (String) sessionAttr.getAttribute("uploadError");
         if (uploadSuccess != null && uploadSuccess) {
             ctx.setVariable("uploadSuccess", true);
-            session.removeAttribute("uploadSuccess");
+            sessionAttr.removeAttribute("uploadSuccess");
         }
         if (uploadError != null) {
             ctx.setVariable("uploadError", uploadError);
-            session.removeAttribute("uploadError");
+            sessionAttr.removeAttribute("uploadError");
         }
 
         templateEngine.process("home", ctx, response.getWriter());
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("currentUser") == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        String playlistTitle = request.getParameter("titolo");
+        String username = (String) session.getAttribute("currentUser");
+
+        if (playlistTitle == null || playlistTitle.isBlank()) {
+            session.setAttribute("uploadError", "Il titolo della playlist non può essere vuoto.");
+            response.sendRedirect("home");
+            return;
+        }
+
+        PlaylistDAO dao = new PlaylistDAO(connection);
+        try {
+            LocalDate today = LocalDate.now();
+            dao.createPlaylist(username, playlistTitle, today);
+            response.sendRedirect("addToPlaylist?playlistName=" + playlistTitle);
+        } catch (SQLException e) {
+            session.setAttribute("uploadError", "Errore nella creazione della playlist: " + e.getMessage());
+            response.sendRedirect("home");
+        }
     }
 
     @Override
