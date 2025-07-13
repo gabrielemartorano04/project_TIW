@@ -1,8 +1,8 @@
 package it.polimi.tiw.project.dao;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,53 +19,58 @@ public class SongDAO {
     public SongDAO(Connection con) {
         this.con = con;
     }
+    
+    public void checkSongConsistency(String albumTitle, int albumYear, String albumArtist,
+            byte[] coverBytes, String user, String basePath) throws SQLException, IOException {
+
+		String query = "SELECT album_year, album_artist, album_image " +
+		"FROM Song WHERE album_title = ? AND user = ? LIMIT 1";
+		
+		try (PreparedStatement check = con.prepareStatement(query)) {
+			check.setString(1, albumTitle);
+			check.setString(2, user);
+			
+			try (ResultSet rs = check.executeQuery()) {
+				if (rs.next()) {
+					int year = rs.getInt("album_year");
+					String artist = rs.getString("album_artist");
+					String imgPath = rs.getString("album_image");
+					
+					if (year != albumYear || !artist.equals(albumArtist)) {
+						throw new SQLException("Album già esistente con attributi differenti.");
+					}
+					
+					File existingImg = new File(basePath + imgPath.replace("files/", ""));
+					if (!existingImg.exists()) {
+						throw new SQLException("Copertina esistente non trovata.");
+					}
+					
+					byte[] existingBytes = Files.readAllBytes(existingImg.toPath());
+					
+					if (!Arrays.equals(coverBytes, existingBytes)) {
+						throw new SQLException("Copertina diversa da quella già presente per l’album.");
+					}
+				}
+			}
+		}
+    }
         
-    public void insertSong(String title, String mp3, Genres genre, String albumName, int albumYear, String albumImg, String albumArtist, String user) throws SQLException, IOException {
-    	
-    	if(songAlreadyExists(user, title)) {
-    		throw new SQLException("ERROR: a song with this title already exists");
-    	}
-    	
-    	String query="SELECT album_year, album_artist, album_image " +
-                "FROM Song WHERE album_title = ? AND user = ? LIMIT 1";
-    	
-    	try(PreparedStatement check= con.prepareStatement(query)){
-    		check.setString(1, albumName);
-    		check.setString(2, user);
-    		try (ResultSet rs = check.executeQuery()){
-    			while(rs.next()) {
-    				int year = rs.getInt("album_year");
-    				String artist = rs.getString("album_artist");
-                    String img = rs.getString("album_image");
-                    		//il controllo su album img è da controllare 
-                    if (year != albumYear || !artist.equals(albumArtist)) {
-                    	throw new SQLException("Error: album già esistente con attributi differenti");
-                    }
-                    byte[] uploaded = Files.readAllBytes(Paths.get(albumImg));
-                    byte[] existing = Files.readAllBytes(Paths.get(img));
-                    if (!Arrays.equals(uploaded, existing)) {
-                        throw new SQLException("Copertina diversa da quella già presente per l’album");
-                    }
-    			}
-    		}
-    		
-    	}
-    	
-    	query = "INSERT INTO Song (title, genre, mp3, album_title, album_artist, album_year, album_image, user) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    	
-    	try(PreparedStatement stmt = con.prepareStatement(query)){
-    		stmt.setString(1, title);
-            stmt.setString(4, albumName);
-            stmt.setString(7, albumImg);
-            stmt.setString(5, albumArtist);
-            stmt.setInt(6, albumYear);
+    public void insertSong(String title, String mp3, Genres genre, String albumName, int albumYear, String albumImg, String albumArtist, String user) throws SQLException {
+        String query = "INSERT INTO Song (title, genre, mp3, album_title, album_artist, album_year, album_image, user) " +
+                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setString(1, title);
             stmt.setString(2, genre.toString());
             stmt.setString(3, mp3);
+            stmt.setString(4, albumName);
+            stmt.setString(5, albumArtist);
+            stmt.setInt(6, albumYear);
+            stmt.setString(7, albumImg);  // già in formato "files/images/..."
             stmt.setString(8, user);
-            
+
             stmt.executeUpdate();
-    	}
+        }
     }
     
     public Song findSong(String title, String user) throws SQLException{

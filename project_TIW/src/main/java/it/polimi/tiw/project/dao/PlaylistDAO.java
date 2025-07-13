@@ -24,13 +24,13 @@ public class PlaylistDAO {
 		
 		try(PreparedStatement check = con.prepareStatement(query)){
 			check.setString(1, playlistTitle);
-			try(ResultSet rs= check.executeQuery()){
-				while(rs.next()){
-					String existingUser = rs.getString("user");
-					if(today.equals(existingUser)) {
-						throw new SQLException("ERROR: Playlist title already used");
-					}
-				}
+			try (ResultSet rs = check.executeQuery()) {
+			    if (rs.next()) {
+			        String existingUser = rs.getString("user");
+			        if (existingUser.equals(user)) {
+			            throw new SQLException("ERROR: Playlist title already used");
+			        }
+			    }
 			}
 		}
 		
@@ -47,22 +47,17 @@ public class PlaylistDAO {
 		
 	};
 	
-	public void addTracksToPlaylist(String title, ArrayList<String> songs) throws SQLException{
-		for(String song : songs) {
-			if(isTrackInPlaylist(title, song)) {
-				throw new SQLException("ERROR: one of the songs is already in this playlist");
-			}
-		}
-		String query = "INSERT IGNORE INTO PlaylistSongs (playlist, song) VALUES (?, ?)";
-        try (PreparedStatement stmt = con.prepareStatement(query)) {
-            for (String song : songs) {
-                stmt.setString(1, title);
-                stmt.setString(2, song);
-                stmt.addBatch();
-            }
-            stmt.executeBatch();
-        }
-	};
+	public void addTracksToPlaylist(String title, ArrayList<String> songs) throws SQLException {
+	    String query = "INSERT IGNORE INTO PlaylistSongs (playlist, song) VALUES (?, ?)";
+	    try (PreparedStatement stmt = con.prepareStatement(query)) {
+	        for (String song : songs) {
+	            stmt.setString(1, title);
+	            stmt.setString(2, song);
+	            stmt.addBatch();
+	        }
+	        stmt.executeBatch();
+	    }
+	}
 
 	public ArrayList<Playlist> findPlaylistsByUser(String user) throws SQLException{
 		ArrayList<Playlist> playlists = new ArrayList<>();
@@ -83,15 +78,15 @@ public class PlaylistDAO {
 	};
 	
 	public Playlist findPlaylistByTitle(String title) throws SQLException{
-		String query = "SELECT title, date, user FROM Playlist WHERE id = ?";
-        try (PreparedStatement stmt = con.prepareStatement(query)) {
+		String query = "SELECT title, date, user FROM Playlist WHERE title = ?";
+		try (PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, title);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Playlist p = new Playlist();
                     p.setTitle(rs.getString("title"));
-                    p.setDate(rs.getDate("creation_date"));
-                    p.setUser(rs.getString("user_id"));
+                    p.setDate(rs.getDate("date"));
+                    p.setUser(rs.getString("user"));
                     return p;
                 }
             }
