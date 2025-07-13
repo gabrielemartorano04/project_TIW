@@ -66,24 +66,41 @@ public class UploadServlet extends HttpServlet {
             int anno = Integer.parseInt(annoStr);
             Genres genere = Genres.valueOf(genereStr.toUpperCase().replace(" ", "_"));
 
-            String imgDir = getServletContext().getRealPath("/img/");
-            String mp3Dir = getServletContext().getRealPath("/mp3/");
+            // Leggi i file in RAM
+            byte[] audioBytes = audioPart.getInputStream().readAllBytes();
+            byte[] coverBytes = coverPart.getInputStream().readAllBytes();
+
+            // Recupera base path dal contesto
+            String basePath = getServletContext().getInitParameter("basePath");
+            String imgDir = basePath + "images/";
+            String mp3Dir = basePath + "audio/";
             new File(imgDir).mkdirs();
             new File(mp3Dir).mkdirs();
 
-            String audioPath = mp3Dir + System.currentTimeMillis() + "_" + audioPart.getSubmittedFileName();
-            String coverPath = imgDir + System.currentTimeMillis() + "_" + coverPart.getSubmittedFileName();
-
-            Files.copy(audioPart.getInputStream(), new File(audioPath).toPath());
-            Files.copy(coverPart.getInputStream(), new File(coverPath).toPath());
-
-            String audioDbPath = "mp3/" + new File(audioPath).getName();
-            String coverDbPath = "img/" + new File(coverPath).getName();
-
+            // Istanzia DAO
             SongDAO dao = new SongDAO(connection);
+
+            // Esegui controlli in RAM: solo coverBytes viene confrontata
+            dao.checkSongConsistency(album, anno, interprete, coverBytes, user, basePath);
+
+            // Se tutto è andato bene, crea i nomi file
+            String audioFilename = System.currentTimeMillis() + "_" + audioPart.getSubmittedFileName();
+            String coverFilename = System.currentTimeMillis() + "_" + coverPart.getSubmittedFileName();
+            String audioPath = mp3Dir + audioFilename;
+            String coverPath = imgDir + coverFilename;
+
+            // Salva fisicamente i file
+            Files.write(new File(audioPath).toPath(), audioBytes);
+            Files.write(new File(coverPath).toPath(), coverBytes);
+
+            // Salva i path nel DB
+            String audioDbPath = "files/audio/" + audioFilename;
+            String coverDbPath = "files/images/" + coverFilename;
+
             dao.insertSong(titolo, audioDbPath, genere, album, anno, coverDbPath, interprete, user);
 
             session.setAttribute("uploadSuccess", true);
+
         } catch (Exception e) {
             session.setAttribute("uploadError", "Errore durante il caricamento del brano: " + e.getMessage());
         }

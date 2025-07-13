@@ -24,6 +24,11 @@
         <param-name>dbPassword</param-name>
         <param-value>1a2b3c4d</param-value>
     </context-param>
+    
+    <context-param>
+	    <param-name>basePath</param-name>
+	    <param-value>/Users/gabriele/Desktop/uni/3 anno/2 semestre/TECNOLOGIE INFORMATICHE PER IL WEB/</param-value>
+	</context-param>
 
     <!-- Servlet Login -->
 
