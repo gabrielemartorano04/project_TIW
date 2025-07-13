@@ -32,16 +32,20 @@
     </div>
 
     <!-- Elenco canzoni -->
-    <table>
-        <tr>
-            <td th:each="track : ${tracks}">
-                <a th:href="@{'/player'(title=${track.title})}">
-                    <img th:src="${track.albumImg}" alt="cover" style="width: 150px; height: 150px;">
-                    <div th:text="${track.title}">Titolo</div>
-                </a>
-            </td>
-        </tr>
-    </table>
+    <div th:if="${#lists.isEmpty(tracks)}" style="text-align:center; font-style: italic; color: #888; margin-bottom: 20px;">
+	    Nessuna canzone presente nella playlist
+	</div>
+	
+	<table th:if="${!#lists.isEmpty(tracks)}">
+	    <tr>
+	        <td th:each="track : ${tracks}">
+	            <a th:href="@{'/player'(title=${track.title})}">
+	                <img th:src="${track.albumImg}" alt="cover" style="width: 150px; height: 150px;">
+	                <div th:text="${track.title}">Titolo</div>
+	            </a>
+	        </td>
+	    </tr>
+	</table>
 
     <!-- Sezione per aggiungere nuovi brani -->
 	<div class="section">
