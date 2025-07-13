@@ -1,10 +1,14 @@
 package it.polimi.tiw.project.dao;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import it.polimi.tiw.project.beans.Genres;
 import it.polimi.tiw.project.beans.Song;
@@ -16,7 +20,7 @@ public class SongDAO {
         this.con = con;
     }
         
-    public void insertSong(String title, String mp3, Genres genre, String albumName, int albumYear, String albumImg, String albumArtist, String user) throws SQLException {
+    public void insertSong(String title, String mp3, Genres genre, String albumName, int albumYear, String albumImg, String albumArtist, String user) throws SQLException, IOException {
     	
     	if(songAlreadyExists(user, title)) {
     		throw new SQLException("ERROR: a song with this title already exists");
@@ -34,8 +38,13 @@ public class SongDAO {
     				String artist = rs.getString("album_artist");
                     String img = rs.getString("album_image");
                     		//il controllo su album img è da controllare 
-                    if (year != albumYear || !artist.equals(albumArtist) || !albumImg.equals(img)) {
+                    if (year != albumYear || !artist.equals(albumArtist)) {
                     	throw new SQLException("Error: album già esistente con attributi differenti");
+                    }
+                    byte[] uploaded = Files.readAllBytes(Paths.get(albumImg));
+                    byte[] existing = Files.readAllBytes(Paths.get(img));
+                    if (!Arrays.equals(uploaded, existing)) {
+                        throw new SQLException("Copertina diversa da quella già presente per l’album");
                     }
     			}
     		}
