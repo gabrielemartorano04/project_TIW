@@ -18,18 +18,22 @@
     <h1 th:text="'Playlist: ' + ${playlistName}">Playlist</h1>
 
     <!-- Controlli paginazione -->
-    <div class="controls">
-        <form th:if="${hasPrev}" th:action="@{/playlist}" method="get">
-            <input type="hidden" name="name" th:value="${playlistName}">
-            <input type="hidden" name="page" th:value="${page - 1}">
-            <button type="submit">Precedenti</button>
-        </form>
-        <form th:if="${hasNext}" th:action="@{/playlist}" method="get">
-            <input type="hidden" name="name" th:value="${playlistName}">
-            <input type="hidden" name="page" th:value="${page + 1}">
-            <button type="submit">Successivi</button>
-        </form>
-    </div>
+	<div class="pagination-controls" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+	    <div>
+	        <form th:if="${hasPrev}" th:action="@{/playlist}" method="get">
+	            <input type="hidden" name="name" th:value="${playlistName}">
+	            <input type="hidden" name="page" th:value="${page - 1}">
+	            <button type="submit">← Precedenti</button>
+	        </form>
+	    </div>
+	    <div>
+	        <form th:if="${hasNext}" th:action="@{/playlist}" method="get">
+	            <input type="hidden" name="name" th:value="${playlistName}">
+	            <input type="hidden" name="page" th:value="${page + 1}">
+	            <button type="submit">Successivi →</button>
+	        </form>
+	    </div>
+	</div>
 
     <!-- Elenco canzoni -->
     <div th:if="${#lists.isEmpty(tracks)}" style="text-align:center; font-style: italic; color: #888; margin-bottom: 20px;">

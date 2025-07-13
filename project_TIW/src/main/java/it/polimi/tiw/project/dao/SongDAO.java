@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -56,7 +57,12 @@ public class SongDAO {
     }
         
     public void insertSong(String title, String mp3, Genres genre, String albumName, int albumYear, String albumImg, String albumArtist, String user) throws SQLException {
-        String query = "INSERT INTO Song (title, genre, mp3, album_title, album_artist, album_year, album_image, user) " +
+    	int currentYear = Year.now().getValue();
+    	if (albumYear > currentYear) {
+    	    throw new SQLException("L'anno dell'album non può essere nel futuro.");
+    	}
+    	
+    	String query = "INSERT INTO Song (title, genre, mp3, album_title, album_artist, album_year, album_image, user) " +
                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = con.prepareStatement(query)) {
@@ -66,7 +72,7 @@ public class SongDAO {
             stmt.setString(4, albumName);
             stmt.setString(5, albumArtist);
             stmt.setInt(6, albumYear);
-            stmt.setString(7, albumImg);  // già in formato "files/images/..."
+            stmt.setString(7, albumImg);
             stmt.setString(8, user);
 
             stmt.executeUpdate();
