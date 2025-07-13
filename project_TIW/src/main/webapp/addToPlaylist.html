@@ -25,16 +25,16 @@
         </div>
         
         <div th:if="${!#lists.isEmpty(songs)}">
-            <ul>
-                <li th:each="s : ${songs}">
-                    <label>
-                        <input type="checkbox" name="songs" th:value="${s.title}">
-                        <span th:text="${s.title} + ' - ' + ${s.albumArtist} + ' (' + ${s.albumYear} + ')'"></span>
-                    </label>
-                </li>
-            </ul>
-            <button type="submit">Aggiungi alla Playlist</button>
-        </div>
+		    <ul style="list-style: none; padding: 0;">
+		        <li th:each="s : ${songs}" style="margin-bottom: 10px;">
+					<label style="display: inline-flex; align-items: left; gap: 10px; width: 100%; justify-content: flex-start;">		                
+						<input type="checkbox" name="songs" th:value="${s.title}" />
+						<span th:text="${s.title} + ' - ' + ${s.albumArtist} + ' (' + ${s.albumYear} + ')'" style="white-space: nowrap;"></span>		            
+					</label>
+		        </li>
+		    </ul>
+		    <button type="submit">Aggiungi alla Playlist</button>
+		</div>
     </form>
 </div>
 </body>
