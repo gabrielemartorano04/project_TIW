@@ -45,7 +45,7 @@
 	        <td th:each="track : ${tracks}">
 	            <a th:href="@{'/player'(title=${track.title})}">
 	                <img th:src="${track.albumImg}" alt="cover" style="width: 150px; height: 150px;">
-	                <div th:text="${track.title}">Titolo</div>
+	                <div th:text="${track.title}"></div>
 	            </a>
 	        </td>
 	    </tr>

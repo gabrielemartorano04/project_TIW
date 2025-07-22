@@ -38,6 +38,7 @@ public class UploadServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("currentUser") == null) {
@@ -62,38 +63,46 @@ public class UploadServlet extends HttpServlet {
             return;
         }
 
+        String audioType = audioPart.getContentType();
+        String coverType = coverPart.getContentType();
+
+        if (audioType == null || !audioType.equals("audio/mpeg")) {
+            session.setAttribute("uploadError", "Il file audio deve essere in formato MP3");
+            response.sendRedirect("createPlaylist");
+            return;
+        }
+
+        if (coverType == null || !coverType.startsWith("image/")) {
+            session.setAttribute("uploadError", "Il file di copertina deve essere un'immagine");
+            response.sendRedirect("createPlaylist");
+            return;
+        }
+
         try {
             int anno = Integer.parseInt(annoStr);
             Genres genere = Genres.valueOf(genereStr.toUpperCase().replace(" ", "_"));
 
-            // Leggi i file in RAM
             byte[] audioBytes = audioPart.getInputStream().readAllBytes();
             byte[] coverBytes = coverPart.getInputStream().readAllBytes();
 
-            // Recupera base path dal contesto
             String basePath = getServletContext().getInitParameter("basePath");
             String imgDir = basePath + "images/";
             String mp3Dir = basePath + "audio/";
             new File(imgDir).mkdirs();
             new File(mp3Dir).mkdirs();
 
-            // Istanzia DAO
             SongDAO dao = new SongDAO(connection);
 
-            // Esegui controlli in RAM: solo coverBytes viene confrontata
             dao.checkSongConsistency(album, anno, interprete, coverBytes, user, basePath);
 
-            // Se tutto è andato bene, crea i nomi file
-            String audioFilename = System.currentTimeMillis() + "_" + audioPart.getSubmittedFileName();
-            String coverFilename = System.currentTimeMillis() + "_" + coverPart.getSubmittedFileName();
+            String audioFilename = System.currentTimeMillis() + "_" + sanitize(audioPart.getSubmittedFileName());
+            String coverFilename = System.currentTimeMillis() + "_" + sanitize(coverPart.getSubmittedFileName());
             String audioPath = mp3Dir + audioFilename;
             String coverPath = imgDir + coverFilename;
 
-            // Salva fisicamente i file
             Files.write(new File(audioPath).toPath(), audioBytes);
             Files.write(new File(coverPath).toPath(), coverBytes);
 
-            // Salva i path nel DB
             String audioDbPath = "files/audio/" + audioFilename;
             String coverDbPath = "files/images/" + coverFilename;
 
@@ -101,11 +110,17 @@ public class UploadServlet extends HttpServlet {
 
             session.setAttribute("uploadSuccess", true);
 
+        } catch (NumberFormatException e) {
+            session.setAttribute("uploadError", "Anno non valido");
         } catch (Exception e) {
             session.setAttribute("uploadError", "Errore durante il caricamento del brano: " + e.getMessage());
         }
 
         response.sendRedirect("createPlaylist");
+    }
+
+    private String sanitize(String filename) {
+        return filename.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
     }
 
     public void destroy() {

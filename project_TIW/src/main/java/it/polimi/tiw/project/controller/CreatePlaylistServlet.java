@@ -1,5 +1,8 @@
 package it.polimi.tiw.project.controller;
 
+import it.polimi.tiw.project.beans.Playlist;
+import it.polimi.tiw.project.dao.PlaylistDAO;
+
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.UnavailableException;
@@ -18,9 +21,6 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
-
-import it.polimi.tiw.project.beans.Playlist;
-import it.polimi.tiw.project.dao.PlaylistDAO;
 
 @WebServlet("/createPlaylist")
 public class CreatePlaylistServlet extends HttpServlet {
@@ -71,7 +71,7 @@ public class CreatePlaylistServlet extends HttpServlet {
             PlaylistDAO dao = new PlaylistDAO(connection);
             playlists = dao.findPlaylistsByUser(username);
         } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore nel caricamento playlist");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore nel caricamento delle playlist");
             return;
         }
 
@@ -82,7 +82,7 @@ public class CreatePlaylistServlet extends HttpServlet {
         ctx.setVariable("username", username);
         ctx.setVariable("playlists", playlists);
 
-        // Messaggi opzionali
+        // Mostra messaggi di upload
         HttpSession sessionAttr = request.getSession();
         Boolean uploadSuccess = (Boolean) sessionAttr.getAttribute("uploadSuccess");
         String uploadError = (String) sessionAttr.getAttribute("uploadError");
@@ -108,11 +108,11 @@ public class CreatePlaylistServlet extends HttpServlet {
             return;
         }
 
-        String playlistTitle = request.getParameter("titolo");
         String username = (String) session.getAttribute("currentUser");
+        String playlistTitle = request.getParameter("titolo");
 
-        if (playlistTitle == null || playlistTitle.isBlank()) {
-            session.setAttribute("uploadError", "Il titolo della playlist non può essere vuoto.");
+        if (playlistTitle == null || playlistTitle.isBlank() || playlistTitle.length() > 100) {
+            session.setAttribute("uploadError", "Titolo playlist non valido.");
             response.sendRedirect("createPlaylist");
             return;
         }
@@ -120,7 +120,6 @@ public class CreatePlaylistServlet extends HttpServlet {
         PlaylistDAO dao = new PlaylistDAO(connection);
         try {
             LocalDate today = LocalDate.now();
-            System.out.println("chiamo createPlaylist");
             dao.createPlaylist(username, playlistTitle, today);
             response.sendRedirect("addToPlaylist?playlist=" + playlistTitle);
         } catch (SQLException e) {

@@ -8,6 +8,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
@@ -24,7 +25,7 @@ import java.util.*;
 public class AddToPlaylistServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-	private TemplateEngine templateEngine;
+    private TemplateEngine templateEngine;
     private Connection connection;
 
     public void init() throws ServletException {
@@ -62,14 +63,23 @@ public class AddToPlaylistServlet extends HttpServlet {
         String username = (String) session.getAttribute("currentUser");
         String playlistTitle = request.getParameter("playlist");
 
+        if (playlistTitle == null || playlistTitle.isBlank()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Playlist non specificata");
+            return;
+        }
+
         try {
             SongDAO songDAO = new SongDAO(connection);
             PlaylistDAO playlistDAO = new PlaylistDAO(connection);
 
+            if (playlistDAO.playlistExistsForUser(username, playlistTitle) == false) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Accesso negato alla playlist");
+                return;
+            }
+
             List<Song> allUserSongs = songDAO.findSongByUser(username);
             List<Song> playlistSongs = playlistDAO.findTracksInPlaylist(playlistTitle);
 
-            // Escludi le canzoni già presenti nella playlist
             Set<String> playlistTitles = new HashSet<>();
             for (Song s : playlistSongs) {
                 playlistTitles.add(s.getTitle());
@@ -91,7 +101,7 @@ public class AddToPlaylistServlet extends HttpServlet {
             templateEngine.process("addToPlaylist", ctx, response.getWriter());
 
         } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante il recupero delle canzoni");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante il recupero dei brani");
         }
     }
 
@@ -107,15 +117,31 @@ public class AddToPlaylistServlet extends HttpServlet {
         String playlistTitle = request.getParameter("playlist");
         String[] selectedSongs = request.getParameterValues("songs");
 
-        if (selectedSongs != null) {
-            try {
-                PlaylistDAO playlistDAO = new PlaylistDAO(connection);
-                ArrayList<String> songsToAdd = new ArrayList<>(Arrays.asList(selectedSongs));
-                playlistDAO.addTracksToPlaylist(playlistTitle, songsToAdd);
-            } catch (SQLException e) {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante l'aggiunta delle canzoni");
+        if (playlistTitle == null || playlistTitle.isBlank()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Titolo playlist mancante");
+            return;
+        }
+
+        if (selectedSongs == null || selectedSongs.length == 0) {
+            // Nessuna canzone selezionata, non errore ma solo redirect
+            response.sendRedirect("addToPlaylist?playlist=" + playlistTitle);
+            return;
+        }
+
+        try {
+            PlaylistDAO playlistDAO = new PlaylistDAO(connection);
+
+            if (playlistDAO.playlistExistsForUser(username, playlistTitle) == false) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Accesso negato");
                 return;
             }
+
+            ArrayList<String> songsToAdd = new ArrayList<>(Arrays.asList(selectedSongs));
+            playlistDAO.addTracksToPlaylist(playlistTitle, songsToAdd);
+
+        } catch (SQLException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante l'aggiunta dei brani");
+            return;
         }
 
         response.sendRedirect("createPlaylist");

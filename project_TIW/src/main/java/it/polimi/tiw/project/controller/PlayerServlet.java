@@ -46,11 +46,13 @@ public class PlayerServlet extends HttpServlet {
             templateEngine = new TemplateEngine();
             templateEngine.setTemplateResolver(resolver);
         } catch (Exception e) {
-            throw new ServletException(e);
+            throw new ServletException("Errore durante l'inizializzazione del template engine", e);
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
+
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("currentUser") == null) {
             response.sendRedirect("login");
@@ -61,15 +63,16 @@ public class PlayerServlet extends HttpServlet {
         String title = request.getParameter("title");
 
         if (title == null || title.isBlank()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Titolo mancante");
+            showErrorPage(request, response, "Titolo mancante o non valido.");
             return;
         }
 
-        SongDAO dao = new SongDAO(connection);
         try {
+            SongDAO dao = new SongDAO(connection);
             Song song = dao.findSong(title, username);
+
             if (song == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Brano non trovato");
+                showErrorPage(request, response, "Brano non trovato o non appartenente all’utente.");
                 return;
             }
 
@@ -81,13 +84,23 @@ public class PlayerServlet extends HttpServlet {
             templateEngine.process("player", ctx, response.getWriter());
 
         } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante il caricamento del brano");
+            e.printStackTrace(); // per log di debug
+            showErrorPage(request, response, "Errore interno durante il caricamento del brano.");
         }
+    }
+
+    private void showErrorPage(HttpServletRequest request, HttpServletResponse response, String message)
+            throws IOException {
+        response.setContentType("text/html");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        response.getWriter().write("<h1>Errore</h1><p>" + message + "</p>");
     }
 
     public void destroy() {
         try {
-            if (connection != null) connection.close();
-        } catch (SQLException ignored) {}
+            if (connection != null)
+                connection.close();
+        } catch (SQLException ignored) {
+        }
     }
 }

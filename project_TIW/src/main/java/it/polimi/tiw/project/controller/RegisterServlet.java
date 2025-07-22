@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -55,6 +56,8 @@ public class RegisterServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html");
 
 		String name = request.getParameter("name");
 		String surname = request.getParameter("surname");
@@ -81,6 +84,10 @@ public class RegisterServlet extends HttpServlet {
 			}
 
 			userDAO.registerUser(username, password, name, surname);
+
+			HttpSession session = request.getSession(true);
+			session.setAttribute("currentUser", username);
+
 			response.sendRedirect(getServletContext().getContextPath() + "/createPlaylist");
 
 		} catch (SQLException e) {
@@ -91,16 +98,27 @@ public class RegisterServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html");
+
+		HttpSession session = request.getSession(false);
+		if (session != null && session.getAttribute("currentUser") != null) {
+			response.sendRedirect("createPlaylist");
+			return;
+		}
+
 	    JakartaServletWebApplication webApp = JakartaServletWebApplication.buildApplication(getServletContext());
 	    WebContext ctx = new WebContext(webApp.buildExchange(request, response), request.getLocale());
 	    templateEngine.process("register", ctx, response.getWriter());
 	}
 
 	private void forwardWithError(HttpServletRequest request, HttpServletResponse response, String errorMsg) throws IOException {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html");
+
 		JakartaServletWebApplication webApp = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApp.buildExchange(request, response), request.getLocale());
 		ctx.setVariable("errorMsg", errorMsg);
-		response.setCharacterEncoding("UTF-8");
 		templateEngine.process("register", ctx, response.getWriter());
 	}
 

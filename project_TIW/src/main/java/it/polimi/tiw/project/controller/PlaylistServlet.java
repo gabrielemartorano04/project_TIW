@@ -24,7 +24,7 @@ import java.util.*;
 public class PlaylistServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-	private TemplateEngine templateEngine;
+    private TemplateEngine templateEngine;
     private Connection connection;
 
     public void init() throws ServletException {
@@ -52,6 +52,7 @@ public class PlaylistServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("currentUser") == null) {
@@ -59,16 +60,33 @@ public class PlaylistServlet extends HttpServlet {
             return;
         }
 
+        String username = (String) session.getAttribute("currentUser");
         String playlistName = request.getParameter("name");
+
+        // ❗ Validazione nome playlist
+        if (playlistName == null || playlistName.isBlank()) {
+            showError(response, "Nome playlist mancante o non valido.");
+            return;
+        }
+
         int page = 0;
         if (request.getParameter("page") != null) {
             try {
                 page = Integer.parseInt(request.getParameter("page"));
-            } catch (NumberFormatException ignored) {}
+                if (page < 0) page = 0;
+            } catch (NumberFormatException e) {
+                showError(response, "Numero di pagina non valido.");
+                return;
+            }
         }
 
         PlaylistDAO dao = new PlaylistDAO(connection);
         try {
+            if (!dao.playlistExistsForUser(username, playlistName)) {
+                showError(response, "Playlist non trovata o non autorizzato.");
+                return;
+            }
+
             List<Song> allTracks = dao.findTracksInPlaylist(playlistName);
             int total = allTracks.size();
             int start = page * 5;
@@ -86,14 +104,23 @@ public class PlaylistServlet extends HttpServlet {
             ctx.setVariable("page", page);
 
             templateEngine.process("playlist", ctx, response.getWriter());
+
         } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore nel caricamento brani");
+            e.printStackTrace(); // logging lato server
+            showError(response, "Errore durante il caricamento della playlist.");
         }
     }
 
+    private void showError(HttpServletResponse response, String message) throws IOException {
+        response.setContentType("text/html");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        response.getWriter().write("<h1>Errore</h1><p>" + message + "</p>");
+    }
+
     public void destroy() {
-        try { 
-        	if (connection != null) connection.close(); 
-    	} catch (SQLException ignored) {}
+        try {
+            if (connection != null) connection.close();
+        } catch (SQLException ignored) {
+        }
     }
 }

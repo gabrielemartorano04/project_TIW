@@ -1,43 +1,67 @@
 package it.polimi.tiw.project.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 @WebServlet("/files/*")
 public class FileServlet extends HttpServlet {
-	
-    private static final long serialVersionUID = 1L;
-	private String basePath;
 
+    private static final long serialVersionUID = 1L;
+    private String basePath;
+
+    @Override
     public void init() throws ServletException {
-        basePath = getServletContext().getInitParameter("basePath");
-        if (!basePath.endsWith("/")) basePath += "/";
+        ServletContext context = getServletContext();
+        basePath = context.getInitParameter("basePath");
+        if (basePath == null || basePath.isBlank()) {
+            throw new ServletException("Parametro basePath non configurato nel web.xml");
+        }
+        if (!basePath.endsWith(File.separator)) {
+            basePath += File.separator;
+        }
     }
 
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String requestPath = req.getPathInfo();
-        if (requestPath == null || requestPath.contains("..")) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("currentUser") == null) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Utente non autenticato");
             return;
         }
 
-        File file = new File(basePath + requestPath);
-        if (!file.exists()) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        String requestedFile = req.getPathInfo();
+        if (requestedFile == null || requestedFile.contains("..") || requestedFile.contains("/") && requestedFile.startsWith("/../")) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Richiesta non valida");
             return;
         }
 
-        String mime = getServletContext().getMimeType(file.getName());
-        if (mime == null) mime = "application/octet-stream";
-        resp.setContentType(mime);
+        File file = new File(basePath, requestedFile);
+        if (!file.exists() || file.isDirectory()) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "File non trovato");
+            return;
+        }
 
-        Files.copy(file.toPath(), resp.getOutputStream());
+        String mimeType = getServletContext().getMimeType(file.getName());
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
+
+        resp.setContentType(mimeType);
+        resp.setContentLengthLong(file.length());
+
+        try (FileInputStream fis = new FileInputStream(file); OutputStream os = resp.getOutputStream()) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+        }
     }
 }
