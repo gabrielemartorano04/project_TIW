@@ -14,5 +14,6 @@ public enum Genres {
 	INDIE,
 	HIP_HOP,
 	BLUES,
+	CLASSICAL,
 	OTHER
 }
