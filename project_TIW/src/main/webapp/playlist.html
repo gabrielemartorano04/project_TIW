@@ -11,7 +11,7 @@
     <!-- Pulsante Torna alla Home -->
     <div style="margin-bottom: 20px;">
         <form th:action="@{/createPlaylist}" method="get">
-            <button type="submit" style="padding: 6px 12px;">← Torna alla Home</button>
+            <button type="submit" style="padding: 6px 12px;">← Return to home page</button>
         </form>
     </div>
 
@@ -23,21 +23,21 @@
 	        <form th:if="${hasPrev}" th:action="@{/playlist}" method="get">
 	            <input type="hidden" name="name" th:value="${playlistName}">
 	            <input type="hidden" name="page" th:value="${page - 1}">
-	            <button type="submit">← Precedenti</button>
+	            <button type="submit">← Previous</button>
 	        </form>
 	    </div>
 	    <div>
 	        <form th:if="${hasNext}" th:action="@{/playlist}" method="get">
 	            <input type="hidden" name="name" th:value="${playlistName}">
 	            <input type="hidden" name="page" th:value="${page + 1}">
-	            <button type="submit">Successivi →</button>
+	            <button type="submit">Next →</button>
 	        </form>
 	    </div>
 	</div>
 
     <!-- Elenco canzoni -->
     <div th:if="${#lists.isEmpty(tracks)}" style="text-align:center; font-style: italic; color: #888; margin-bottom: 20px;">
-	    Nessuna canzone presente nella playlist
+	    No songs added to the playlist
 	</div>
 	
 	<table th:if="${!#lists.isEmpty(tracks)}">
@@ -53,11 +53,11 @@
 
     <!-- Sezione per aggiungere nuovi brani -->
 	<div class="section">
-	    <h2>Aggiungi nuovi brani alla playlist</h2>
+	    <h2>Add new songs to the playlist</h2>
 	    
 	    <form th:action="@{/addToPlaylist}" method="get">
 	        <input type="hidden" name="playlist" th:value="${playlistName}">
-	        <button type="submit">Vai a selezione brani</button>
+	        <button type="submit">Go to song selection</button>
 	    </form>
 	</div>
 	</div>

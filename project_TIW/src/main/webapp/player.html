@@ -11,28 +11,28 @@
     <!-- Pulsante Torna alla Home -->
     <div style="margin-bottom: 20px;">
         <form th:action="@{/createPlaylist}" method="get">
-            <button type="submit" style="padding: 6px 12px;">← Torna alla Home</button>
+            <button type="submit" style="padding: 6px 12px;">← Return to home page</button>
         </form>
     </div>
 
-    <h1>Dettagli brano</h1>
+    <h1>Song details</h1>
 
     <div class="song-details">
-        <p><strong>Titolo:</strong> <span th:text="${song.title}"></span></p>
-        <p><strong>Interprete:</strong> <span th:text="${song.albumArtist}"></span></p>
+        <p><strong>Title:</strong> <span th:text="${song.title}"></span></p>
+        <p><strong>Author/Group:</strong> <span th:text="${song.albumArtist}"></span></p>
         <p><strong>Album:</strong> <span th:text="${song.albumName}"></span></p>
-        <p><strong>Anno:</strong> <span th:text="${song.albumYear}"></span></p>
-        <p><strong>Genere:</strong> <span th:text="${song.genre}"></span></p>
+        <p><strong>Year:</strong> <span th:text="${song.albumYear}"></span></p>
+        <p><strong>Genre:</strong> <span th:text="${song.genre}"></span></p>
 
         <div>
-            <strong>Copertina:</strong><br>
+            <strong>Album cover:</strong><br>
             <img th:src="@{${song.albumImg}}" alt="Copertina" style="max-width:300px; margin-top:10px;">
         </div>
 
         <div style="margin-top:20px;">
             <audio controls>
 			    <source th:src="@{/${song.mp3}}" type="audio/mpeg" />
-			    Il tuo browser non supporta l'audio HTML5.
+			    Your browser doesn't support HTML5 audio.
 			</audio>
         </div>
     </div>
