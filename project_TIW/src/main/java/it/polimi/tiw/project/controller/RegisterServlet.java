@@ -71,6 +71,13 @@ public class RegisterServlet extends HttpServlet {
 			return;
 		}
 
+		if (name.length()>=100 || surname.length()>=100 || username.length()>=50 || password.length()>=255|| confirm.length()>=255) {
+			forwardWithError(request, response, "too long data");
+
+
+            return;
+    }
+		
 		if (!password.equals(confirm)) {
 			forwardWithError(request, response, "Passwords don't match");
 			return;

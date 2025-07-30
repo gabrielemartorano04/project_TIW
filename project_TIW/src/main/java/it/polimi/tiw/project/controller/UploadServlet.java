@@ -62,6 +62,12 @@ public class UploadServlet extends HttpServlet {
             response.sendRedirect("createPlaylist");
             return;
         }
+        
+        if (titolo.length()>=100 || album.length() >=100  || interprete.length() >=100) {
+        	session.setAttribute("uploadError", "too long data");
+            response.sendRedirect("createPlaylist");
+            return;
+        }
 
         String audioType = audioPart.getContentType();
         String coverType = coverPart.getContentType();
