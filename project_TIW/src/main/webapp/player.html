@@ -31,8 +31,7 @@
 
         <div style="margin-top:20px;">
             <audio controls>
-			    <source th:src="@{/${song.mp3}}" type="audio/mpeg" />
-			    Your browser doesn't support HTML5 audio.
+			    <source th:src="@{${song.mp3}}" type="audio/mpeg">
 			</audio>
         </div>
     </div>
