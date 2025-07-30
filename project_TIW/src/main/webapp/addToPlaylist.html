@@ -28,7 +28,7 @@
 		    <ul style="list-style: none; padding: 0;">
 		        <li th:each="s : ${songs}" style="margin-bottom: 10px;">
 					<label style="display: inline-flex; align-items: left; gap: 10px; width: 100%; justify-content: flex-start;">		                
-						<input type="checkbox" name="songs" th:value="${s.title}" required>
+						<input type="checkbox" name="songs" th:value="${s.title}">
 						<span th:text="${s.title} + ' - ' + ${s.albumArtist} + ' (' + ${s.albumYear} + ')'" style="white-space: nowrap;"></span>		            
 					</label>
 		        </li>
