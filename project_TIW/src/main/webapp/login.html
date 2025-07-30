@@ -10,7 +10,7 @@
 <div class="container">
     <h1>Login to your account</h1>
     <form th:action="@{/login}" method="post">
-        <input type="text" name="username" placeholder="Username" required maxlength="100">
+        <input type="text" name="username" placeholder="Username" required maxlength="50">
 		<input type="password" name="password" placeholder="Password" required maxlength="255">
         <button type="submit">Login</button>
         <div class="error" th:if="${errorMsg != null}" th:text="${errorMsg}"></div>
