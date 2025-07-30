@@ -48,7 +48,7 @@ public class AddToPlaylistServlet extends HttpServlet {
             templateEngine = new TemplateEngine();
             templateEngine.setTemplateResolver(resolver);
         } catch (Exception e) {
-            throw new ServletException(e);
+            throw new ServletException("Unable while initialization: " + e.getMessage());
         }
     }
 
@@ -64,7 +64,7 @@ public class AddToPlaylistServlet extends HttpServlet {
         String playlistTitle = request.getParameter("playlist");
 
         if (playlistTitle == null || playlistTitle.isBlank()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Playlist non specificata");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Playlist not specified");
             return;
         }
 
@@ -73,7 +73,7 @@ public class AddToPlaylistServlet extends HttpServlet {
             PlaylistDAO playlistDAO = new PlaylistDAO(connection);
 
             if (playlistDAO.playlistExistsForUser(username, playlistTitle) == false) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Accesso negato alla playlist");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied to the playlist");
                 return;
             }
 
@@ -101,7 +101,7 @@ public class AddToPlaylistServlet extends HttpServlet {
             templateEngine.process("addToPlaylist", ctx, response.getWriter());
 
         } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante il recupero dei brani");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error during song recovery");
         }
     }
 
@@ -118,12 +118,11 @@ public class AddToPlaylistServlet extends HttpServlet {
         String[] selectedSongs = request.getParameterValues("songs");
 
         if (playlistTitle == null || playlistTitle.isBlank()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Titolo playlist mancante");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing playlist title");
             return;
         }
 
         if (selectedSongs == null || selectedSongs.length == 0) {
-            // Nessuna canzone selezionata, non errore ma solo redirect
             response.sendRedirect("addToPlaylist?playlist=" + playlistTitle);
             return;
         }
@@ -132,7 +131,7 @@ public class AddToPlaylistServlet extends HttpServlet {
             PlaylistDAO playlistDAO = new PlaylistDAO(connection);
 
             if (playlistDAO.playlistExistsForUser(username, playlistTitle) == false) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Accesso negato");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
                 return;
             }
 
@@ -140,7 +139,7 @@ public class AddToPlaylistServlet extends HttpServlet {
             playlistDAO.addTracksToPlaylist(playlistTitle, songsToAdd);
 
         } catch (SQLException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore durante l'aggiunta dei brani");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while adding song ");
             return;
         }
 

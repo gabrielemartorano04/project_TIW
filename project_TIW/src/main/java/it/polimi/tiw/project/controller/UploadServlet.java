@@ -32,7 +32,7 @@ public class UploadServlet extends HttpServlet {
             Class.forName(driver);
             connection = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            throw new ServletException(e);
+            throw new ServletException("Unable while initialization: " + e.getMessage());
         }
     }
 
@@ -58,7 +58,7 @@ public class UploadServlet extends HttpServlet {
 
         if (titolo == null || titolo.isBlank() || album == null || interprete == null || annoStr == null || genereStr == null
                 || audioPart == null || coverPart == null) {
-            session.setAttribute("uploadError", "Dati mancanti o incompleti");
+            session.setAttribute("uploadError", "Missing or incomplete data");
             response.sendRedirect("createPlaylist");
             return;
         }
@@ -67,13 +67,13 @@ public class UploadServlet extends HttpServlet {
         String coverType = coverPart.getContentType();
 
         if (audioType == null || !audioType.equals("audio/mpeg")) {
-            session.setAttribute("uploadError", "Il file audio deve essere in formato MP3");
+            session.setAttribute("uploadError", "The audio file must be in MP3 format");
             response.sendRedirect("createPlaylist");
             return;
         }
 
         if (coverType == null || !coverType.startsWith("image/")) {
-            session.setAttribute("uploadError", "Il file di copertina deve essere un'immagine");
+            session.setAttribute("uploadError", "The cover file must be an image");
             response.sendRedirect("createPlaylist");
             return;
         }
@@ -111,9 +111,9 @@ public class UploadServlet extends HttpServlet {
             session.setAttribute("uploadSuccess", true);
 
         } catch (NumberFormatException e) {
-            session.setAttribute("uploadError", "Anno non valido");
+            session.setAttribute("uploadError", "Invalid year");
         } catch (Exception e) {
-            session.setAttribute("uploadError", "Errore durante il caricamento del brano: " + e.getMessage());
+            session.setAttribute("uploadError", "Error while song uploading: " + e.getMessage());
         }
 
         response.sendRedirect("createPlaylist");

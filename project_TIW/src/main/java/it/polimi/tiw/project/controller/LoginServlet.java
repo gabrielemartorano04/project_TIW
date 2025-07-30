@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
             templateEngine.setTemplateResolver(resolver);
 
         } catch (Exception e) {
-            throw new ServletException("Impossibile inizializzare la servlet di login", e);
+            throw new ServletException("Unable while initialization: " + e.getMessage());
         }
     }
     
@@ -62,9 +62,8 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        // Validazione lato server
         if (username == null || password == null || username.isBlank() || password.isBlank()) {
-            forwardWithError(request, response, "Username e password sono obbligatori");
+            forwardWithError(request, response, "Username and password are mandatory");
             return;
         }
 
@@ -73,7 +72,7 @@ public class LoginServlet extends HttpServlet {
             boolean validCredentials = userDAO.checkCredentials(username, password);
 
             if (!validCredentials) {
-                forwardWithError(request, response, "Credenziali non valide");
+                forwardWithError(request, response, "Invalid credentials");
             } else {
                 HttpSession oldSession = request.getSession(false);
                 if (oldSession != null) {
@@ -87,7 +86,7 @@ public class LoginServlet extends HttpServlet {
             }
 
         } catch (SQLException e) {
-            forwardWithError(request, response, "Errore interno durante il login");
+            forwardWithError(request, response, "Internal error during login");
         }
     }
 

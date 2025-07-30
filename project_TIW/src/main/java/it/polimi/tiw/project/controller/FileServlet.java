@@ -21,7 +21,7 @@ public class FileServlet extends HttpServlet {
         ServletContext context = getServletContext();
         basePath = context.getInitParameter("basePath");
         if (basePath == null || basePath.isBlank()) {
-            throw new ServletException("Parametro basePath non configurato nel web.xml");
+            throw new ServletException("Parameter basePath not specified in web.xml");
         }
         if (!basePath.endsWith(File.separator)) {
             basePath += File.separator;
@@ -32,19 +32,19 @@ public class FileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("currentUser") == null) {
-            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Utente non autenticato");
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthenticated user");
             return;
         }
 
         String requestedFile = req.getPathInfo();
         if (requestedFile == null || requestedFile.contains("..") || requestedFile.contains("/") && requestedFile.startsWith("/../")) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Richiesta non valida");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invelid request");
             return;
         }
 
         File file = new File(basePath, requestedFile);
         if (!file.exists() || file.isDirectory()) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "File non trovato");
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
             return;
         }
 

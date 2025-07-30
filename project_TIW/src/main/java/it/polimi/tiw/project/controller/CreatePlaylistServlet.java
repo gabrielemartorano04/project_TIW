@@ -50,7 +50,7 @@ public class CreatePlaylistServlet extends HttpServlet {
             templateEngine = new TemplateEngine();
             templateEngine.setTemplateResolver(resolver);
         } catch (ClassNotFoundException | SQLException e) {
-            throw new UnavailableException("Errore durante l'inizializzazione: " + e.getMessage());
+            throw new UnavailableException("Unable while initialization: " + e.getMessage());
         }
     }
 
@@ -112,7 +112,7 @@ public class CreatePlaylistServlet extends HttpServlet {
         String playlistTitle = request.getParameter("titolo");
 
         if (playlistTitle == null || playlistTitle.isBlank() || playlistTitle.length() > 100) {
-            session.setAttribute("uploadError", "Titolo playlist non valido.");
+            session.setAttribute("uploadError", "Invalid playlist title.");
             response.sendRedirect("createPlaylist");
             return;
         }
@@ -123,7 +123,7 @@ public class CreatePlaylistServlet extends HttpServlet {
             dao.createPlaylist(username, playlistTitle, today);
             response.sendRedirect("addToPlaylist?playlist=" + playlistTitle);
         } catch (SQLException e) {
-            session.setAttribute("uploadError", "Errore nella creazione della playlist: " + e.getMessage());
+            session.setAttribute("uploadError", "Error creating playlist: " + e.getMessage());
             response.sendRedirect("createPlaylist");
         }
     }

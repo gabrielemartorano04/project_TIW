@@ -67,19 +67,19 @@ public class RegisterServlet extends HttpServlet {
 
 		if (name == null || surname == null || username == null || password == null || confirm == null ||
 				name.isBlank() || surname.isBlank() || username.isBlank() || password.isBlank() || confirm.isBlank()) {
-			forwardWithError(request, response, "Compila tutti i campi");
+			forwardWithError(request, response, "Fill in all the fields");
 			return;
 		}
 
 		if (!password.equals(confirm)) {
-			forwardWithError(request, response, "Le password non coincidono");
+			forwardWithError(request, response, "Passwords don't match");
 			return;
 		}
 
 		UserDAO userDAO = new UserDAO(connection);
 		try {
 			if (userDAO.isUsernameTaken(username)) {
-				forwardWithError(request, response, "Username già esistente");
+				forwardWithError(request, response, "username already existing");
 				return;
 			}
 
@@ -91,7 +91,7 @@ public class RegisterServlet extends HttpServlet {
 			response.sendRedirect(getServletContext().getContextPath() + "/createPlaylist");
 
 		} catch (SQLException e) {
-			forwardWithError(request, response, "Errore nel database durante la registrazione");
+			forwardWithError(request, response, "Database error while registration");
 		}
 	}
 	
@@ -126,8 +126,7 @@ public class RegisterServlet extends HttpServlet {
 		try {
 			if (connection != null)
 				connection.close();
-		} catch (SQLException sqle) {
-			// Ignore
+		} catch (SQLException e) {
 		}
 	}
 }

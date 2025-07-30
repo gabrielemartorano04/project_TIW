@@ -47,7 +47,7 @@ public class PlaylistServlet extends HttpServlet {
             templateEngine = new TemplateEngine();
             templateEngine.setTemplateResolver(resolver);
         } catch (Exception e) {
-            throw new ServletException(e);
+            throw new ServletException("Unable while initialization: " + e.getMessage());
         }
     }
 
@@ -63,9 +63,8 @@ public class PlaylistServlet extends HttpServlet {
         String username = (String) session.getAttribute("currentUser");
         String playlistName = request.getParameter("name");
 
-        // ❗ Validazione nome playlist
         if (playlistName == null || playlistName.isBlank()) {
-            showError(response, "Nome playlist mancante o non valido.");
+            showError(response, "Missing or invalid playlist title");
             return;
         }
 
@@ -75,7 +74,7 @@ public class PlaylistServlet extends HttpServlet {
                 page = Integer.parseInt(request.getParameter("page"));
                 if (page < 0) page = 0;
             } catch (NumberFormatException e) {
-                showError(response, "Numero di pagina non valido.");
+                showError(response, "Invalid page number");
                 return;
             }
         }
@@ -83,7 +82,7 @@ public class PlaylistServlet extends HttpServlet {
         PlaylistDAO dao = new PlaylistDAO(connection);
         try {
             if (!dao.playlistExistsForUser(username, playlistName)) {
-                showError(response, "Playlist non trovata o non autorizzato.");
+                showError(response, "Playlist not found or not belonging to the user");
                 return;
             }
 
@@ -106,8 +105,8 @@ public class PlaylistServlet extends HttpServlet {
             templateEngine.process("playlist", ctx, response.getWriter());
 
         } catch (SQLException e) {
-            e.printStackTrace(); // logging lato server
-            showError(response, "Errore durante il caricamento della playlist.");
+            e.printStackTrace();
+            showError(response, "Error while playlist uploading");
         }
     }
 

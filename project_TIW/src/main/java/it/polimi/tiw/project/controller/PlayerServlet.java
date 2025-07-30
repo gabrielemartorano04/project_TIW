@@ -46,7 +46,7 @@ public class PlayerServlet extends HttpServlet {
             templateEngine = new TemplateEngine();
             templateEngine.setTemplateResolver(resolver);
         } catch (Exception e) {
-            throw new ServletException("Errore durante l'inizializzazione del template engine", e);
+            throw new ServletException("Unable while initialization: " + e.getMessage());
         }
     }
 
@@ -63,7 +63,7 @@ public class PlayerServlet extends HttpServlet {
         String title = request.getParameter("title");
 
         if (title == null || title.isBlank()) {
-            showErrorPage(request, response, "Titolo mancante o non valido.");
+            showErrorPage(request, response, "Missing or invalid title");
             return;
         }
 
@@ -72,7 +72,7 @@ public class PlayerServlet extends HttpServlet {
             Song song = dao.findSong(title, username);
 
             if (song == null) {
-                showErrorPage(request, response, "Brano non trovato o non appartenente all’utente.");
+                showErrorPage(request, response, "Song not found or not belonging to the user");
                 return;
             }
 
@@ -85,7 +85,7 @@ public class PlayerServlet extends HttpServlet {
 
         } catch (SQLException e) {
             e.printStackTrace(); // per log di debug
-            showErrorPage(request, response, "Errore interno durante il caricamento del brano.");
+            showErrorPage(request, response, "Error while song uploading");
         }
     }
 

@@ -7,10 +7,10 @@
 </head>
 <body>
 <div class="container">
-    <div th:if="${uploadSuccess}" class="success-message">Brano aggiunto con successo!</div>
+    <div th:if="${uploadSuccess}" class="success-message">Song added successfully!</div>
     <div th:if="${uploadError}" class="error-message" th:text="${uploadError}"></div>
 
-    <h1 th:text="'Welcome, ' + ${username}">Benvenuto</h1>
+    <h1 th:text="'Welcome, ' + ${username}">Welcome</h1>
 
     <div class="section">
         <h2>Your playlists</h2>
