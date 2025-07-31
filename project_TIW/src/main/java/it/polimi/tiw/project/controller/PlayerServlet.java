@@ -84,7 +84,7 @@ public class PlayerServlet extends HttpServlet {
             templateEngine.process("player", ctx, response.getWriter());
 
         } catch (SQLException e) {
-            e.printStackTrace(); // per log di debug
+            e.printStackTrace();
             showErrorPage(request, response, "Error while song uploading");
         }
     }
